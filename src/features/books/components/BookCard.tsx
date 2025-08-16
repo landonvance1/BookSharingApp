@@ -1,6 +1,7 @@
-import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native';
 import { Book } from '../types';
+import { API_BASE_URL } from '../../../lib/constants';
 
 interface BookCardProps {
   book: Book;
@@ -8,6 +9,18 @@ interface BookCardProps {
 }
 
 export const BookCard: React.FC<BookCardProps> = ({ book, onBorrowPress }) => {
+  const [imageError, setImageError] = useState(false);
+  const [imageLoading, setImageLoading] = useState(true);
+  
+  const hasValidThumbnail = book.thumbnailUrl && book.thumbnailUrl.trim() !== '' && !imageError;
+  
+  const getFullImageUrl = (thumbnailUrl: string) => {
+    if (thumbnailUrl.startsWith('http://') || thumbnailUrl.startsWith('https://')) {
+      return thumbnailUrl;
+    }
+    return `${API_BASE_URL}${thumbnailUrl.startsWith('/') ? '' : '/'}${thumbnailUrl}`;
+  };
+  
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -19,7 +32,20 @@ export const BookCard: React.FC<BookCardProps> = ({ book, onBorrowPress }) => {
         
         <View style={styles.mainContent}>
           <View style={styles.thumbnail}>
-            <Text style={styles.thumbnailText}>Book thumbnail here</Text>
+            {hasValidThumbnail ? (
+              <Image
+                source={{ uri: getFullImageUrl(book.thumbnailUrl) }}
+                style={styles.thumbnailImage}
+                onLoad={() => setImageLoading(false)}
+                onError={() => {
+                  setImageError(true);
+                  setImageLoading(false);
+                }}
+                resizeMode="cover"
+              />
+            ) : (
+              <Text style={styles.thumbnailText}>No thumbnail</Text>
+            )}
           </View>
           
           <TouchableOpacity 
@@ -78,6 +104,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0f0f0',
     justifyContent: 'center',
     alignItems: 'center',
+    borderRadius: 4,
+  },
+  thumbnailImage: {
+    width: '100%',
+    height: '100%',
     borderRadius: 4,
   },
   thumbnailText: {
