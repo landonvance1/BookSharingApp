@@ -1,4 +1,7 @@
-const API_BASE_URL = __DEV__ ? 'http://192.168.1.72:5155' : 'http://192.168.1.72:5155';
+import Constants from "expo-constants";
+const devServerUri = 'http://' + Constants.expoConfig?.hostUri?.split(':').shift() + ':5155';
+
+const API_BASE_URL = __DEV__ ? devServerUri : 'http://192.168.1.72:5155'; //todo replace with prod api url
 
 export const api = {
   get: async (endpoint: string) => {
