@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { booksApi } from '../api/booksApi';
 import { Book } from '../types';
 
@@ -7,7 +7,7 @@ export const useBookSearch = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const searchBooks = async (query: string) => {
+  const searchBooks = useCallback(async (query: string) => {
     if (!query.trim()) {
       setBooks([]);
       return;
@@ -25,7 +25,7 @@ export const useBookSearch = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   const loadAllBooks = async () => {
     setLoading(true);

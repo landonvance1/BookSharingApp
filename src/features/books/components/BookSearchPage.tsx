@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   Text,
@@ -9,17 +9,20 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { useBookSearch } from '../hooks/useBookSearch';
+import { useDebounceValue } from '../../../hooks/useDebounceValue';
 import { BookCard } from './BookCard';
 import { Book } from '../types';
 
 export const BookSearchPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedQuery] = useDebounceValue(searchQuery, 500);
   const { books, loading, error, searchBooks } = useBookSearch();
 
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-    searchBooks(query);
-  };
+  useEffect(() => {
+    if (debouncedQuery.trim()) {
+      searchBooks(debouncedQuery);
+    }
+  }, [debouncedQuery, searchBooks]);
 
   const handleBorrowPress = (book: Book) => {
     console.log('Borrow pressed for:', book.title);
@@ -36,7 +39,7 @@ export const BookSearchPage: React.FC = () => {
           style={styles.searchInput}
           placeholder="Search by title or author..."
           value={searchQuery}
-          onChangeText={handleSearch}
+          onChangeText={setSearchQuery}
           autoCapitalize="none"
           clearButtonMode="while-editing"
         />
