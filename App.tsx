@@ -1,10 +1,10 @@
 import { StatusBar } from 'expo-status-bar';
-import { BookSearchPage } from './src/features/books/components/BookSearchPage';
+import TabNavigator from './src/components/TabNavigator';
 
 export default function App() {
   return (
     <>
-      <BookSearchPage />
+      <TabNavigator />
       <StatusBar style="auto" />
     </>
   );
