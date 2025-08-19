@@ -41,6 +41,8 @@ export const BookSearchPage: React.FC = () => {
           value={searchQuery}
           onChangeText={setSearchQuery}
           autoCapitalize="none"
+          autoCorrect={false}
+          spellCheck={false}
           clearButtonMode="while-editing"
         />
       </View>
