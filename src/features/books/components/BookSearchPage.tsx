@@ -3,7 +3,6 @@ import {
   StyleSheet,
   Text,
   View,
-  TextInput,
   FlatList,
   ActivityIndicator,
   SafeAreaView,
@@ -12,6 +11,7 @@ import { useBookSearch } from '../hooks/useBookSearch';
 import { useDebounceValue } from '../../../hooks/useDebounceValue';
 import { BookCard } from './BookCard';
 import { Book } from '../types';
+import { SearchInput } from '../../../components/SearchInput';
 
 export const BookSearchPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -35,15 +35,11 @@ export const BookSearchPage: React.FC = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
+        <SearchInput
           placeholder="Search by title or author..."
           value={searchQuery}
           onChangeText={setSearchQuery}
-          autoCapitalize="none"
-          autoCorrect={false}
-          spellCheck={false}
-          clearButtonMode="while-editing"
+          onSubmitSearch={searchBooks}
         />
       </View>
 
@@ -81,15 +77,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
-  },
-  searchInput: {
-    height: 44,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    fontSize: 16,
-    backgroundColor: '#f9f9f9',
   },
   loadingContainer: {
     flex: 1,
