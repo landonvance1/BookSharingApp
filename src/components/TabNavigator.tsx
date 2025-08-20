@@ -1,6 +1,5 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { NavigationContainer } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 import { BookSearchPage } from '../features/books/components/BookSearchPage';
@@ -13,8 +12,7 @@ const Tab = createBottomTabNavigator();
 
 export default function TabNavigator() {
   return (
-    <NavigationContainer>
-      <Tab.Navigator
+    <Tab.Navigator
         screenOptions={({ route }) => ({
           tabBarIcon: ({ focused, color, size }) => {
             let iconName: string;
@@ -52,6 +50,5 @@ export default function TabNavigator() {
         <Tab.Screen name="Communities" component={CommunitiesScreen} />
         <Tab.Screen name="Settings" component={SettingsScreen} />
       </Tab.Navigator>
-    </NavigationContainer>
   );
 }
