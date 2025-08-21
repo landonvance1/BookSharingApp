@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
 import { communitiesApi } from './api/communitiesApi';
-import { Community } from './types';
+import { CommunityWithMemberCount } from './types';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function CommunitiesScreen() {
-  const [communities, setCommunities] = useState<Community[]>([]);
+  const [communities, setCommunities] = useState<CommunityWithMemberCount[]>([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
 
   useEffect(() => {
     loadCommunities();
@@ -14,7 +16,11 @@ export default function CommunitiesScreen() {
   const loadCommunities = async () => {
     try {
       setLoading(true);
-      const data = await communitiesApi.getAllCommunities();
+      if (!user?.id) {
+        setCommunities([]);
+        return;
+      }
+      const data = await communitiesApi.getUserCommunities(user.id);
       setCommunities(data);
     } catch (error) {
       console.error('Error loading communities:', error);
@@ -24,12 +30,45 @@ export default function CommunitiesScreen() {
     }
   };
 
-  const renderCommunity = ({ item }: { item: Community }) => (
-    <View style={styles.communityItem}>
-      <Text style={styles.communityName}>{item.name}</Text>
-      <Text style={[styles.communityStatus, item.active ? styles.active : styles.inactive]}>
-        {item.active ? 'Active' : 'Inactive'}
-      </Text>
+  const handleLeaveCommunity = async (communityId: number) => {
+    if (!user?.id) return;
+    
+    Alert.alert(
+      'Leave Community',
+      'Are you sure you want to leave this community?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Leave',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await communitiesApi.leaveCommunity(communityId, user.id);
+              await loadCommunities(); // Reload the list
+            } catch (error) {
+              console.error('Error leaving community:', error);
+              Alert.alert('Error', 'Failed to leave community');
+            }
+          }
+        }
+      ]
+    );
+  };
+
+  const renderCommunity = ({ item }: { item: CommunityWithMemberCount }) => (
+    <View style={[styles.communityItem, !item.active && styles.inactiveCommunity]}>
+      <View style={styles.communityInfo}>
+        <Text style={[styles.communityName, !item.active && styles.inactiveText]}>{item.name}</Text>
+        <Text style={[styles.memberCount, !item.active && styles.inactiveText]}>
+          {item.memberCount || 0} {(item.memberCount || 0) === 1 ? 'member' : 'members'}
+        </Text>
+      </View>
+      <TouchableOpacity
+        style={[styles.leaveButton, !item.active && styles.inactiveButton]}
+        onPress={() => handleLeaveCommunity(item.id)}
+      >
+        <Text style={[styles.leaveButtonText, !item.active && styles.inactiveText]}>Leave</Text>
+      </TouchableOpacity>
     </View>
   );
 
@@ -109,26 +148,38 @@ const styles = StyleSheet.create({
     shadowRadius: 2.22,
     elevation: 3,
   },
+  inactiveCommunity: {
+    backgroundColor: '#e9ecef',
+    opacity: 0.6,
+  },
+  communityInfo: {
+    flex: 1,
+  },
   communityName: {
     fontSize: 18,
     fontWeight: '600',
     color: '#333',
-    flex: 1,
+    marginBottom: 4,
   },
-  communityStatus: {
+  memberCount: {
+    fontSize: 14,
+    color: '#666',
+  },
+  inactiveText: {
+    color: '#999',
+  },
+  leaveButton: {
+    backgroundColor: '#dc3545',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 6,
+  },
+  leaveButtonText: {
+    color: '#fff',
     fontSize: 14,
     fontWeight: '500',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    textAlign: 'center',
   },
-  active: {
-    backgroundColor: '#d4edda',
-    color: '#155724',
-  },
-  inactive: {
-    backgroundColor: '#f8d7da',
-    color: '#721c24',
+  inactiveButton: {
+    backgroundColor: '#6c757d',
   },
 });
