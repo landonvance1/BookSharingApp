@@ -3,3 +3,7 @@ export interface Community {
   name: string;
   active: boolean;
 }
+
+export interface CommunityWithMemberCount extends Community {
+  memberCount: number;
+}
