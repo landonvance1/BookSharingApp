@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { useBookSearch } from '../hooks/useBookSearch';
 import { useDebounceValue } from '../../../hooks/useDebounceValue';
-import { BookCard } from './BookCard';
+import { SearchBookCard } from './SearchBookCard';
 import { Book } from '../types';
 import { SearchInput } from '../../../components/SearchInput';
 
@@ -29,7 +29,7 @@ export const BookSearchPage: React.FC = () => {
   };
 
   const renderBookCard = ({ item }: { item: Book }) => (
-    <BookCard book={item} onBorrowPress={handleBorrowPress} />
+    <SearchBookCard book={item} onBorrowPress={handleBorrowPress} />
   );
 
   return (
