@@ -75,7 +75,7 @@ export default function CommunitiesScreen() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
+        <ActivityIndicator size="large" color="#2D5A27" />
         <Text style={styles.loadingText}>Loading communities...</Text>
       </View>
     );
@@ -101,56 +101,58 @@ export default function CommunitiesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    padding: 16,
+    backgroundColor: '#F9F7F4',
+    padding: 8,
     paddingTop: 60,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#F9F7F4',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',
+    color: '#1C3A5B',
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
+    color: '#6B6B6B',
     textAlign: 'center',
     marginTop: 20,
   },
   loadingText: {
     marginTop: 10,
     fontSize: 16,
-    color: '#666',
+    color: '#6B6B6B',
   },
   list: {
     flex: 1,
   },
   communityItem: {
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#FEFCF9',
     padding: 16,
     marginBottom: 8,
-    borderRadius: 8,
+    marginHorizontal: 8,
+    borderRadius: 12,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: '#1C3A5B',
     shadowOffset: {
-      width: 0,
-      height: 1,
+      width: 2,
+      height: 4,
     },
-    shadowOpacity: 0.22,
-    shadowRadius: 2.22,
-    elevation: 3,
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 2,
   },
   inactiveCommunity: {
-    backgroundColor: '#e9ecef',
-    opacity: 0.6,
+    backgroundColor: '#E8E6E3',
+    opacity: 0.7,
   },
   communityInfo: {
     flex: 1,
@@ -158,28 +160,28 @@ const styles = StyleSheet.create({
   communityName: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#333',
+    color: '#1C3A5B',
     marginBottom: 4,
   },
   memberCount: {
     fontSize: 14,
-    color: '#666',
+    color: '#6B6B6B',
   },
   inactiveText: {
-    color: '#999',
+    color: '#6B6B6B',
   },
   leaveButton: {
-    backgroundColor: '#dc3545',
+    backgroundColor: '#C4443C',
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 6,
   },
   leaveButtonText: {
-    color: '#fff',
+    color: '#FEFCF9',
     fontSize: 14,
     fontWeight: '500',
   },
   inactiveButton: {
-    backgroundColor: '#6c757d',
+    backgroundColor: '#8FA68E',
   },
 });

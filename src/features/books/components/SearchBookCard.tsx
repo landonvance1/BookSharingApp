@@ -24,44 +24,37 @@ export const SearchBookCard: React.FC<SearchBookCardProps> = ({ book, onBorrowPr
   
   return (
     <View style={bookCardStyles.container}>
-      <View style={bookCardStyles.header}>
-        <Text style={bookCardStyles.author}>{book.author}</Text>
-      </View>
-      
-      <View style={bookCardStyles.content}>
-        <Text style={bookCardStyles.title}>{book.title}</Text>
-        
-        <View style={bookCardStyles.mainContent}>
-          <View style={bookCardStyles.thumbnail}>
-            {hasValidThumbnail ? (
-              <Image
-                source={{ uri: getFullImageUrl(book.thumbnailUrl) }}
-                style={bookCardStyles.thumbnailImage}
-                onLoad={() => setImageLoading(false)}
-                onError={() => {
-                  setImageError(true);
-                  setImageLoading(false);
-                }}
-                resizeMode="cover"
-              />
-            ) : (
-              <Text style={bookCardStyles.thumbnailText}>No thumbnail</Text>
-            )}
-          </View>
-          
-          <TouchableOpacity 
-            style={bookCardStyles.borrowButton}
-            onPress={() => onBorrowPress?.(book)}
-          >
-            <Text style={bookCardStyles.borrowButtonText}>Ask to borrow button</Text>
-          </TouchableOpacity>
+      <View style={bookCardStyles.cardContent}>
+        <View style={bookCardStyles.thumbnail}>
+          {hasValidThumbnail ? (
+            <Image
+              source={{ uri: getFullImageUrl(book.thumbnailUrl) }}
+              style={bookCardStyles.thumbnailImage}
+              onLoad={() => setImageLoading(false)}
+              onError={() => {
+                setImageError(true);
+                setImageLoading(false);
+              }}
+              resizeMode="cover"
+            />
+          ) : (
+            <Text style={bookCardStyles.thumbnailText}>No Cover</Text>
+          )}
         </View>
-      </View>
-      
-      <View style={bookCardStyles.footer}>
-        <Text style={bookCardStyles.description}>
-          ISBN: {book.isbn}
-        </Text>
+        
+        <View style={bookCardStyles.contentArea}>
+          <Text style={bookCardStyles.author}>{book.author}</Text>
+          <Text style={bookCardStyles.title}>{book.title}</Text>
+          
+          <View style={bookCardStyles.actionButtons}>
+            <TouchableOpacity 
+              style={bookCardStyles.primaryButton}
+              onPress={() => onBorrowPress?.(book)}
+            >
+              <Text style={bookCardStyles.primaryButtonText}>Request Book</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </View>
     </View>
   );
