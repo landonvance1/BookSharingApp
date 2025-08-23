@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Text, View, TouchableOpacity, Image, Alert, ActionSheetIOS, Platform } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import { UserBook } from '../../books/types';
 import { API_BASE_URL, BookStatus } from '../../../lib/constants';
 import { bookCardStyles } from '../../../components/BookCardStyles';
@@ -115,53 +116,44 @@ export const LibraryBookCard: React.FC<LibraryBookCardProps> = ({ userBook, onRe
   
   return (
     <View style={bookCardStyles.container}>
-      <View style={bookCardStyles.header}>
-        <Text style={bookCardStyles.author}>{book.author}</Text>
-      </View>
+      <TouchableOpacity 
+        style={bookCardStyles.trashIcon}
+        onPress={handleRemovePress}
+      >
+        <Icon name="close" size={20} color="#C4443C" />
+      </TouchableOpacity>
       
-      <View style={bookCardStyles.content}>
-        <Text style={bookCardStyles.title}>{book.title}</Text>
+      <View style={bookCardStyles.cardContent}>
+        <View style={bookCardStyles.thumbnail}>
+          {hasValidThumbnail ? (
+            <Image
+              source={{ uri: getFullImageUrl(book.thumbnailUrl) }}
+              style={bookCardStyles.thumbnailImage}
+              onError={() => {
+                setImageError(true);
+              }}
+              resizeMode="cover"
+            />
+          ) : (
+            <Text style={bookCardStyles.thumbnailText}>No Cover</Text>
+          )}
+        </View>
         
-        <View style={bookCardStyles.mainContent}>
-          <View style={bookCardStyles.thumbnail}>
-            {hasValidThumbnail ? (
-              <Image
-                source={{ uri: getFullImageUrl(book.thumbnailUrl) }}
-                style={bookCardStyles.thumbnailImage}
-                onError={() => {
-                  setImageError(true);
-                }}
-                resizeMode="cover"
-              />
-            ) : (
-              <Text style={bookCardStyles.thumbnailText}>No thumbnail</Text>
-            )}
-          </View>
+        <View style={bookCardStyles.contentArea}>
+          <Text style={bookCardStyles.author}>{book.author}</Text>
+          <Text style={bookCardStyles.title}>{book.title}</Text>
           
-          <View style={{ alignItems: 'center' }}>
+          <View style={bookCardStyles.actionButtons}>
             <TouchableOpacity 
               style={getStatusStyle(userBook.status)}
               onPress={handleStatusPress}
             >
               <Text style={bookCardStyles.statusText}>
-                {getStatusText(userBook.status)} ▼
+                {getStatusText(userBook.status)}
               </Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={bookCardStyles.removeButton}
-              onPress={handleRemovePress}
-            >
-              <Text style={bookCardStyles.removeButtonText}>Remove Book</Text>
             </TouchableOpacity>
           </View>
         </View>
-      </View>
-      
-      <View style={bookCardStyles.footer}>
-        <Text style={bookCardStyles.description}>
-          ISBN: {book.isbn}
-        </Text>
       </View>
     </View>
   );
