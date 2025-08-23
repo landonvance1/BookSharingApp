@@ -65,7 +65,7 @@ export const bookCardStyles = StyleSheet.create({
     gap: 8,
   },
   primaryButton: {
-    backgroundColor: '#2D5A27',
+    backgroundColor: '#8FA68E',
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 6,
