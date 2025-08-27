@@ -1,15 +1,16 @@
 import { useState, useEffect, useCallback } from 'react';
 import { booksApi } from '../api/booksApi';
-import { Book } from '../types';
+import { Book, SearchBookResult } from '../types';
 
 export const useBookSearch = () => {
   const [books, setBooks] = useState<Book[]>([]);
+  const [searchResults, setSearchResults] = useState<SearchBookResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const searchBooks = useCallback(async (query: string) => {
     if (!query.trim()) {
-      setBooks([]);
+      setSearchResults([]);
       return;
     }
 
@@ -18,10 +19,10 @@ export const useBookSearch = () => {
 
     try {
       const results = await booksApi.searchBooks(query);
-      setBooks(results);
+      setSearchResults(results);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Search failed');
-      setBooks([]);
+      setSearchResults([]);
     } finally {
       setLoading(false);
     }
@@ -48,6 +49,7 @@ export const useBookSearch = () => {
 
   return {
     books,
+    searchResults,
     loading,
     error,
     searchBooks,

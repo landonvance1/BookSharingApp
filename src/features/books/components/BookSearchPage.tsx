@@ -10,13 +10,13 @@ import {
 import { useBookSearch } from '../hooks/useBookSearch';
 import { useDebounceValue } from '../../../hooks/useDebounceValue';
 import { SearchBookCard } from './SearchBookCard';
-import { Book } from '../types';
+import { SearchBookResult } from '../types';
 import { SearchInput } from '../../../components/SearchInput';
 
 export const BookSearchPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedQuery] = useDebounceValue(searchQuery, 500);
-  const { books, loading, error, searchBooks } = useBookSearch();
+  const { searchResults, loading, error, searchBooks } = useBookSearch();
 
   useEffect(() => {
     if (debouncedQuery.trim()) {
@@ -24,11 +24,11 @@ export const BookSearchPage: React.FC = () => {
     }
   }, [debouncedQuery, searchBooks]);
 
-  const handleBorrowPress = (book: Book) => {
+  const handleBorrowPress = (book: SearchBookResult) => {
     console.log('Borrow pressed for:', book.title);
   };
 
-  const renderBookCard = ({ item }: { item: Book }) => (
+  const renderBookCard = ({ item }: { item: SearchBookResult }) => (
     <SearchBookCard book={item} onBorrowPress={handleBorrowPress} />
   );
 
@@ -56,9 +56,9 @@ export const BookSearchPage: React.FC = () => {
       )}
 
       <FlatList
-        data={books}
+        data={searchResults}
         renderItem={renderBookCard}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => `${item.userBookId}-${item.communityId}`}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContainer}
       />
