@@ -1,25 +1,23 @@
 import React, { useState } from 'react';
 import { Text, View, TouchableOpacity, Image } from 'react-native';
-import { Book } from '../types';
+import Icon from 'react-native-vector-icons/Ionicons';
+import { SearchBookResult } from '../types';
 import { API_BASE_URL } from '../../../lib/constants';
 import { bookCardStyles } from '../../../components/BookCardStyles';
 
 interface SearchBookCardProps {
-  book: Book;
-  onBorrowPress?: (book: Book) => void;
+  book: SearchBookResult;
+  onBorrowPress?: (book: SearchBookResult) => void;
 }
 
 export const SearchBookCard: React.FC<SearchBookCardProps> = ({ book, onBorrowPress }) => {
   const [imageError, setImageError] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
   
-  const hasValidThumbnail = book.thumbnailUrl && book.thumbnailUrl.trim() !== '' && !imageError;
+  const hasValidThumbnail = book.isbn && book.isbn.trim() !== '' && !imageError;
   
-  const getFullImageUrl = (thumbnailUrl: string) => {
-    if (thumbnailUrl.startsWith('http://') || thumbnailUrl.startsWith('https://')) {
-      return thumbnailUrl;
-    }
-    return `${API_BASE_URL}${thumbnailUrl.startsWith('/') ? '' : '/'}${thumbnailUrl}`;
+  const getThumbnailUrl = () => {
+    return `${API_BASE_URL}/images/${book.isbn}.jpg`;
   };
   
   return (
@@ -28,7 +26,7 @@ export const SearchBookCard: React.FC<SearchBookCardProps> = ({ book, onBorrowPr
         <View style={bookCardStyles.thumbnail}>
           {hasValidThumbnail ? (
             <Image
-              source={{ uri: getFullImageUrl(book.thumbnailUrl) }}
+              source={{ uri: getThumbnailUrl() }}
               style={bookCardStyles.thumbnailImage}
               onLoad={() => setImageLoading(false)}
               onError={() => {
@@ -45,6 +43,10 @@ export const SearchBookCard: React.FC<SearchBookCardProps> = ({ book, onBorrowPr
         <View style={bookCardStyles.contentArea}>
           <Text style={bookCardStyles.author}>{book.author}</Text>
           <Text style={bookCardStyles.title}>{book.title}</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+            <Icon name="people" size={16} color="#6B6B6B" style={{ marginRight: 6 }} />
+            <Text style={bookCardStyles.community}>{book.communityName}</Text>
+          </View>
           
           <View style={bookCardStyles.actionButtons}>
             <TouchableOpacity 

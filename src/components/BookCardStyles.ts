@@ -54,6 +54,12 @@ export const bookCardStyles = StyleSheet.create({
     fontWeight: '400',
     marginBottom: 4,
   },
+  community: {
+    color: '#6B6B6B',
+    fontSize: 14,
+    fontWeight: '400',
+    marginBottom: 4,
+  },
   title: {
     color: '#1C3A5B',
     fontSize: 18,

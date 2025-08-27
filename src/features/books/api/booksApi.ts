@@ -1,13 +1,13 @@
 import { api } from '../../../lib/api';
-import { Book } from '../types';
+import { Book, SearchBookResult } from '../types';
 
 export const booksApi = {
-  searchBooks: async (search?: string): Promise<Book[]> => {
+  searchBooks: async (search?: string): Promise<SearchBookResult[]> => {
     const params = new URLSearchParams();
     if (search) params.append('search', search);
     
     const query = params.toString();
-    const endpoint = query ? `/books/search?${query}` : '/books';
+    const endpoint = `/books/search${query ? `?${query}` : ''}`;
     
     return api.get(endpoint);
   },
