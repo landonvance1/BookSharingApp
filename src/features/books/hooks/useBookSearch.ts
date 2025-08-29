@@ -9,11 +9,6 @@ export const useBookSearch = () => {
   const [error, setError] = useState<string | null>(null);
 
   const searchBooks = useCallback(async (query: string) => {
-    if (!query.trim()) {
-      setSearchResults([]);
-      return;
-    }
-
     setLoading(true);
     setError(null);
 
