@@ -19,9 +19,7 @@ export const BookSearchPage: React.FC = () => {
   const { searchResults, loading, error, searchBooks } = useBookSearch();
 
   useEffect(() => {
-    if (debouncedQuery.trim()) {
-      searchBooks(debouncedQuery);
-    }
+    searchBooks(debouncedQuery);
   }, [debouncedQuery, searchBooks]);
 
   const handleBorrowPress = (book: SearchBookResult) => {
