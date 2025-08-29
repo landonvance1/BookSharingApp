@@ -43,7 +43,7 @@ export default function CommunitiesScreen() {
           style: 'destructive',
           onPress: async () => {
             try {
-              await communitiesApi.leaveCommunity(communityId, user.id);
+              await communitiesApi.leaveCommunity(communityId);
               await loadCommunities(); // Reload the list
             } catch (error) {
               console.error('Error leaving community:', error);
