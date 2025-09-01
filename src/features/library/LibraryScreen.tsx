@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   Text,
@@ -6,17 +6,46 @@ import {
   FlatList,
   ActivityIndicator,
   SafeAreaView,
+  TouchableOpacity,
 } from 'react-native';
 import { useUserBooks } from './hooks/useUserBooks';
 import { useDebounceValue } from '../../hooks/useDebounceValue';
 import { LibraryBookCard } from './components/LibraryBookCard';
 import { UserBook } from '../books/types';
 import { SearchInput } from '../../components/SearchInput';
+import Icon from 'react-native-vector-icons/Ionicons';
+import Toast from 'react-native-toast-message';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { LibraryStackParamList } from './LibraryStack';
+
+type LibraryScreenNavigationProp = StackNavigationProp<LibraryStackParamList, 'LibraryMain'>;
+type LibraryScreenRouteProp = RouteProp<LibraryStackParamList, 'LibraryMain'>;
 
 export default function LibraryScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedQuery] = useDebounceValue(searchQuery, 300);
   const { userBooks, loading, error, updateUserBookStatus, removeUserBook } = useUserBooks();
+  const navigation = useNavigation<LibraryScreenNavigationProp>();
+  const route = useRoute<LibraryScreenRouteProp>();
+
+  const handleAddBookPress = () => {
+    navigation.navigate('BarcodeScanner');
+  };
+
+  // Handle success message from BookConfirmation
+  useEffect(() => {
+    if (route.params?.showSuccess) {
+      Toast.show({
+        type: 'success',
+        text1: '✓ Book added to your library!',
+        visibilityTime: 1500,
+      });
+      
+      // Clear the parameter to prevent showing again on re-renders
+      navigation.setParams({ showSuccess: undefined });
+    }
+  }, [route.params?.showSuccess, navigation]);
 
   const filteredBooks = userBooks.filter(userBook => {
     if (!debouncedQuery.trim()) return true;
@@ -68,11 +97,20 @@ export default function LibraryScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.searchContainer}>
-        <SearchInput
-          placeholder="Search your books..."
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-        />
+        <View style={styles.searchRow}>
+          <SearchInput
+            placeholder="Search your books..."
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            style={styles.searchInput}
+          />
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={handleAddBookPress}
+          >
+            <Icon name="add" size={24} color="#fff" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       {error && (
@@ -119,6 +157,30 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
+  },
+  searchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  searchInput: {
+    flex: 1,
+  },
+  addButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#007AFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   loadingContainer: {
     flex: 1,
