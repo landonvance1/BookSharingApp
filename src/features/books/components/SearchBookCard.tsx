@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Text, View, TouchableOpacity, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { SearchBookResult } from '../types';
-import { API_BASE_URL } from '../../../lib/constants';
 import { bookCardStyles } from '../../../components/BookCardStyles';
+import { getImageUrlFromIsbn } from '../../../utils/imageUtils';
 
 interface SearchBookCardProps {
   book: SearchBookResult;
@@ -16,17 +16,13 @@ export const SearchBookCard: React.FC<SearchBookCardProps> = ({ book, onBorrowPr
   
   const hasValidThumbnail = book.isbn && book.isbn.trim() !== '' && !imageError;
   
-  const getThumbnailUrl = () => {
-    return `${API_BASE_URL}/images/${book.isbn}.jpg`;
-  };
-  
   return (
     <View style={bookCardStyles.container}>
       <View style={bookCardStyles.cardContent}>
         <View style={bookCardStyles.thumbnail}>
           {hasValidThumbnail ? (
             <Image
-              source={{ uri: getThumbnailUrl() }}
+              source={{ uri: getImageUrlFromIsbn(book.isbn) }}
               style={bookCardStyles.thumbnailImage}
               onLoad={() => setImageLoading(false)}
               onError={() => {

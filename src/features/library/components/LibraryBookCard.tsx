@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { Text, View, TouchableOpacity, Image, Alert, ActionSheetIOS, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { UserBook } from '../../books/types';
-import { API_BASE_URL, BookStatus } from '../../../lib/constants';
+import { BookStatus } from '../../../lib/constants';
 import { bookCardStyles } from '../../../components/BookCardStyles';
+import { getFullImageUrl } from '../../../utils/imageUtils';
 
 interface LibraryBookCardProps {
   userBook: UserBook;
@@ -16,13 +17,6 @@ export const LibraryBookCard: React.FC<LibraryBookCardProps> = ({ userBook, onRe
   
   const { book } = userBook;
   const hasValidThumbnail = book.thumbnailUrl && book.thumbnailUrl.trim() !== '' && !imageError;
-  
-  const getFullImageUrl = (thumbnailUrl: string) => {
-    if (thumbnailUrl.startsWith('http://') || thumbnailUrl.startsWith('https://')) {
-      return thumbnailUrl;
-    }
-    return `${API_BASE_URL}${thumbnailUrl.startsWith('/') ? '' : '/'}${thumbnailUrl}`;
-  };
 
   const getStatusText = (status: number) => {
     switch (status) {

@@ -3,7 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 import { BookSearchPage } from '../features/books/components/BookSearchPage';
-import LibraryScreen from '../features/library/LibraryScreen';
+import { LibraryStack } from '../features/library/LibraryStack';
 import LoansScreen from '../features/loans/LoansScreen';
 import CommunitiesScreen from '../features/communities/CommunitiesScreen';
 import SettingsScreen from '../features/settings/SettingsScreen';
@@ -45,7 +45,7 @@ export default function TabNavigator() {
         })}
       >
         <Tab.Screen name="Search" component={BookSearchPage} />
-        <Tab.Screen name="Library" component={LibraryScreen} />
+        <Tab.Screen name="Library" component={LibraryStack} />
         <Tab.Screen name="Loans" component={LoansScreen} />
         <Tab.Screen name="Communities" component={CommunitiesScreen} />
         <Tab.Screen name="Settings" component={SettingsScreen} />
