@@ -57,11 +57,11 @@ export default function BarcodeScanner() {
     try {
       console.log(`Bar code with type ${type} and data ${data} has been scanned!`);
       
-      const endpoint = `/books/isbn/${data}`;
+      const endpoint = `/import/books/isbn/${data}`;
       console.log('Making API call to:', endpoint);
       
-      // Call API to get book by ISBN using the full barcode data
-      const book: Book = await api.get(endpoint);
+      // Call API to import book by ISBN using the full barcode data
+      const book: Book = await api.put(endpoint);
       console.log('API response:', book);
       
       // Navigate to confirmation screen
@@ -72,7 +72,7 @@ export default function BarcodeScanner() {
       
       Alert.alert(
         'Book Not Found',
-        'Sorry, we could not find this book in our database. Please try scanning another book or try again later.',
+        'Sorry, we could not find this book. Please try scanning another book or try again later.',
         [
           {
             text: 'Try Again',

@@ -36,7 +36,7 @@ export const api = {
     return response.json();
   },
   
-  put: async (endpoint: string, data: any) => {
+  put: async (endpoint: string, data?: any) => {
     const authHeaders = await getAuthHeaders();
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       method: 'PUT',
@@ -44,7 +44,7 @@ export const api = {
         'Content-Type': 'application/json',
         ...authHeaders,
       },
-      body: JSON.stringify(data),
+      ...(data && { body: JSON.stringify(data) }),
     });
     if (!response.ok) {
       throw new Error(`API Error: ${response.status}`);
