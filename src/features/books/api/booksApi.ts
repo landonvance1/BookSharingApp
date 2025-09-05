@@ -7,7 +7,7 @@ export const booksApi = {
     if (search) params.append('search', search);
     
     const query = params.toString();
-    const endpoint = `/books/search${query ? `?${query}` : ''}`;
+    const endpoint = `/user-books/search${query ? `?${query}` : ''}`;
     
     return api.get(endpoint);
   },
