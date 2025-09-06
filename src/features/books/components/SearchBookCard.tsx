@@ -3,7 +3,7 @@ import { Text, View, TouchableOpacity, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { SearchBookResult } from '../types';
 import { bookCardStyles } from '../../../components/BookCardStyles';
-import { getImageUrlFromIsbn } from '../../../utils/imageUtils';
+import { getImageUrlFromId } from '../../../utils/imageUtils';
 
 interface SearchBookCardProps {
   book: SearchBookResult;
@@ -14,7 +14,7 @@ export const SearchBookCard: React.FC<SearchBookCardProps> = ({ book, onBorrowPr
   const [imageError, setImageError] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
   
-  const hasValidThumbnail = book.isbn && book.isbn.trim() !== '' && !imageError;
+  const hasValidThumbnail = book.bookId && book.bookId > 0 && !imageError;
   
   return (
     <View style={bookCardStyles.container}>
@@ -22,7 +22,7 @@ export const SearchBookCard: React.FC<SearchBookCardProps> = ({ book, onBorrowPr
         <View style={bookCardStyles.thumbnail}>
           {hasValidThumbnail ? (
             <Image
-              source={{ uri: getImageUrlFromIsbn(book.isbn) }}
+              source={{ uri: getImageUrlFromId(book.bookId) }}
               style={bookCardStyles.thumbnailImage}
               onLoad={() => setImageLoading(false)}
               onError={() => {

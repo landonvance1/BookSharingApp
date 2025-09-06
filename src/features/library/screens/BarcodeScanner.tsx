@@ -57,41 +57,20 @@ export default function BarcodeScanner() {
     try {
       console.log(`Bar code with type ${type} and data ${data} has been scanned!`);
       
-      const endpoint = `/books/search?isbn=${data}&includeExternal=true`;
+      const endpoint = `/books/isbn/${data}`;
       console.log('Making API call to:', endpoint);
       
       // Call API to search for book by ISBN using the full barcode data
-      const response: BookSearchResponse = await api.get(endpoint);
+      const response: Book = await api.get(endpoint);
       console.log('API response:', response);
       
       // Handle response validation
-      if (!response.books || response.books.length === 0) {
-        throw new Error('No books found');
+      if (!response) {
+        throw new Error('No book found');
       }
       
-      if (response.books.length > 1) {
-        Alert.alert(
-          'Multiple Books Found',
-          'We found multiple books with this ISBN. This shouldn\'t happen - please try again or contact support.',
-          [
-            {
-              text: 'Try Again',
-              onPress: () => {
-                setScanned(false);
-                setLoading(false);
-              },
-            },
-            {
-              text: 'Cancel',
-              style: 'cancel',
-              onPress: () => navigation.goBack(),
-            },
-          ]
-        );
-        return;
-      }
       // Navigate to confirmation screen with the single book
-      navigation.navigate('BookConfirmation', { book: response.books[0] });
+      navigation.navigate('BookConfirmation', { book: response});
       
     } catch (error) {
       console.error('Error fetching book by ISBN:', error);

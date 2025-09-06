@@ -2,7 +2,6 @@ export interface Book {
   id: number;
   title: string;
   author: string;
-  isbn: string;
   thumbnailUrl: string;
 }
 
@@ -10,7 +9,6 @@ export interface SearchBookResult {
   bookId: number;
   title: string;
   author: string;
-  isbn: string;
   userBookId: number;
   ownerUserId: string;
   status: number;

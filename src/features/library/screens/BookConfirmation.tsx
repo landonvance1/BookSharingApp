@@ -95,7 +95,6 @@ export default function BookConfirmation() {
           <View style={styles.bookInfo}>
             <Text style={styles.bookTitle}>{book.title}</Text>
             <Text style={styles.bookAuthor}>by {book.author}</Text>
-            <Text style={styles.bookIsbn}>ISBN: {book.isbn}</Text>
           </View>
         </View>
         
@@ -177,11 +176,6 @@ const styles = StyleSheet.create({
     color: '#666',
     textAlign: 'center',
     marginBottom: 8,
-  },
-  bookIsbn: {
-    fontSize: 14,
-    color: '#999',
-    textAlign: 'center',
   },
   confirmationSection: {
     backgroundColor: '#fff',
