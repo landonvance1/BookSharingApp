@@ -29,8 +29,14 @@ export default function BookConfirmation() {
     setLoading(true);
     
     try {
-      // Call API to add book to user's library
-      await api.post('/user-books/', book.id);
+      // Check if book ID is negative (book doesn't exist in database yet)
+      if (book.id < 0) {
+        // Create the book and add it to user's library
+        await api.post('/books?addToUser=true', book);
+      } else {
+        // Book already exists, just add to user's library
+        await api.post('/user-books/', book.id);
+      }
       
       setLoading(false);
       

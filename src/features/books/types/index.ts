@@ -25,3 +25,8 @@ export interface UserBook {
   status: number;
   book: Book;
 }
+
+export interface BookSearchResponse {
+  books: Book[];
+  hasMore: boolean;
+}

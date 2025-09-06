@@ -12,7 +12,7 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { LibraryStackParamList } from '../LibraryStack';
 import { api } from '../../../lib/api';
-import { Book } from '../../books/types';
+import { Book, BookSearchResponse } from '../../books/types';
 
 type BarcodeScannerNavigationProp = StackNavigationProp<LibraryStackParamList, 'BarcodeScanner'>;
 
@@ -57,15 +57,41 @@ export default function BarcodeScanner() {
     try {
       console.log(`Bar code with type ${type} and data ${data} has been scanned!`);
       
-      const endpoint = `/import/books/isbn/${data}`;
+      const endpoint = `/books/search?isbn=${data}&includeExternal=true`;
       console.log('Making API call to:', endpoint);
       
-      // Call API to import book by ISBN using the full barcode data
-      const book: Book = await api.put(endpoint);
-      console.log('API response:', book);
+      // Call API to search for book by ISBN using the full barcode data
+      const response: BookSearchResponse = await api.get(endpoint);
+      console.log('API response:', response);
       
-      // Navigate to confirmation screen
-      navigation.navigate('BookConfirmation', { book });
+      // Handle response validation
+      if (!response.books || response.books.length === 0) {
+        throw new Error('No books found');
+      }
+      
+      if (response.books.length > 1) {
+        Alert.alert(
+          'Multiple Books Found',
+          'We found multiple books with this ISBN. This shouldn\'t happen - please try again or contact support.',
+          [
+            {
+              text: 'Try Again',
+              onPress: () => {
+                setScanned(false);
+                setLoading(false);
+              },
+            },
+            {
+              text: 'Cancel',
+              style: 'cancel',
+              onPress: () => navigation.goBack(),
+            },
+          ]
+        );
+        return;
+      }
+      // Navigate to confirmation screen with the single book
+      navigation.navigate('BookConfirmation', { book: response.books[0] });
       
     } catch (error) {
       console.error('Error fetching book by ISBN:', error);
