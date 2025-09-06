@@ -12,7 +12,6 @@ export type LibraryStackParamList = {
       id: number;
       title: string;
       author: string;
-      isbn: string;
       thumbnailUrl: string;
     };
   };

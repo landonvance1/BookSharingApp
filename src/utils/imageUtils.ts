@@ -12,10 +12,10 @@ export const getFullImageUrl = (thumbnailUrl?: string): string => {
   return `${API_BASE_URL}${thumbnailUrl.startsWith('/') ? '' : '/'}${thumbnailUrl}`;
 };
 
-export const getImageUrlFromIsbn = (isbn?: string): string => {
-  if (!isbn || isbn.trim() === '') {
+export const getImageUrlFromId = (id: number): string => {
+  if (id <= 0) {
     return 'https://via.placeholder.com/150x200?text=No+Image';
   }
   
-  return `${API_BASE_URL}/images/${isbn}.jpg`;
+  return `${API_BASE_URL}/images/${id}.jpg`;
 };
