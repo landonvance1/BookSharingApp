@@ -170,18 +170,10 @@ export default function BarcodeScanner() {
       
       <View style={styles.bottomControls}>
         <TouchableOpacity 
-          style={styles.testButton}
-          onPress={() => {
-            console.log('Test button pressed');
-            handleBarCodeScanned({ 
-              type: 'ean13', 
-              data: '0-380-78959-0',
-              cornerPoints: [],
-              bounds: { origin: { x: 0, y: 0 }, size: { width: 0, height: 0 } }
-            } as BarcodeScanningResult);
-          }}
+          style={styles.searchButton}
+          onPress={() => navigation.navigate('ExternalBookSearch')}
         >
-          <Text style={styles.testButtonText}>Test Scan</Text>
+          <Text style={styles.searchButtonText}>Search Title/Author</Text>
         </TouchableOpacity>
         
         <TouchableOpacity 
@@ -317,13 +309,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  testButton: {
+  searchButton: {
     backgroundColor: 'rgba(0, 122, 255, 0.8)',
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 8,
   },
-  testButtonText: {
+  searchButtonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',

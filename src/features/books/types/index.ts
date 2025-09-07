@@ -28,3 +28,8 @@ export interface BookSearchResponse {
   books: Book[];
   hasMore: boolean;
 }
+
+export interface ExternalBookSearchResponse {
+  books: Book[];
+  hasMore: boolean;
+}
