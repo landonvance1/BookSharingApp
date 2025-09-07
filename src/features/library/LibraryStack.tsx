@@ -3,10 +3,12 @@ import { createStackNavigator } from '@react-navigation/stack';
 import LibraryScreen from './LibraryScreen';
 import BarcodeScanner from './screens/BarcodeScanner';
 import BookConfirmation from './screens/BookConfirmation';
+import ExternalBookSearch from './screens/ExternalBookSearch';
 
 export type LibraryStackParamList = {
   LibraryMain: { showSuccess?: boolean } | undefined;
   BarcodeScanner: undefined;
+  ExternalBookSearch: undefined;
   BookConfirmation: {
     book: {
       id: number;
@@ -36,6 +38,15 @@ export function LibraryStack() {
         options={{
           headerShown: true,
           title: 'Scan Book',
+          headerBackTitle: '',
+        }}
+      />
+      <Stack.Screen
+        name="ExternalBookSearch"
+        component={ExternalBookSearch}
+        options={{
+          headerShown: true,
+          title: 'Add Book',
           headerBackTitle: '',
         }}
       />
