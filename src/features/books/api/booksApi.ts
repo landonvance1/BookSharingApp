@@ -23,4 +23,8 @@ export const booksApi = {
   addBook: async (book: Omit<Book, 'id'>): Promise<Book> => {
     return api.post('/books', book);
   },
+  
+  createShareRequest: async (userBookId: number): Promise<any> => {
+    return api.post(`/shares?userbookid=${userBookId}`, {});
+  },
 };

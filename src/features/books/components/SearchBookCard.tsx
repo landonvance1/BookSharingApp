@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Text, View, TouchableOpacity, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import Toast from 'react-native-toast-message';
 import { SearchBookResult } from '../types';
 import { bookCardStyles } from '../../../components/BookCardStyles';
 import { getImageUrlFromId } from '../../../utils/imageUtils';
+import { booksApi } from '../api/booksApi';
 
 interface SearchBookCardProps {
   book: SearchBookResult;
@@ -13,8 +15,40 @@ interface SearchBookCardProps {
 export const SearchBookCard: React.FC<SearchBookCardProps> = ({ book, onBorrowPress }) => {
   const [imageError, setImageError] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
+  const [isRequesting, setIsRequesting] = useState(false);
   
   const hasValidThumbnail = book.bookId && book.bookId > 0 && !imageError;
+  
+  const handleRequestBook = async () => {
+    setIsRequesting(true);
+    try {
+      await booksApi.createShareRequest(book.userBookId);
+      Toast.show({
+        type: 'success',
+        text1: '✓ Request sent!',
+        text2: 'The owner will be notified of your request',
+        visibilityTime: 3000,
+      });
+      onBorrowPress?.(book);
+    } catch (error: any) {
+      let errorMessage = 'Failed to request book. Please try again.';
+      
+      if (error.message.includes('400')) {
+        errorMessage = 'Unable to request this book. Please check if the book is available.';
+      } else if (error.message.includes('409')) {
+        errorMessage = 'You already have an active request for this book.';
+      }
+      
+      Toast.show({
+        type: 'error',
+        text1: 'Request failed',
+        text2: errorMessage,
+        visibilityTime: 4000,
+      });
+    } finally {
+      setIsRequesting(false);
+    }
+  };
   
   return (
     <View style={bookCardStyles.container}>
@@ -46,10 +80,13 @@ export const SearchBookCard: React.FC<SearchBookCardProps> = ({ book, onBorrowPr
           
           <View style={bookCardStyles.actionButtons}>
             <TouchableOpacity 
-              style={bookCardStyles.primaryButton}
-              onPress={() => onBorrowPress?.(book)}
+              style={[bookCardStyles.primaryButton, isRequesting && { opacity: 0.6 }]}
+              onPress={handleRequestBook}
+              disabled={isRequesting}
             >
-              <Text style={bookCardStyles.primaryButtonText}>Request Book</Text>
+              <Text style={bookCardStyles.primaryButtonText}>
+                {isRequesting ? 'Requesting...' : 'Request Book'}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
