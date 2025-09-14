@@ -22,8 +22,8 @@ export const LibraryBookCard: React.FC<LibraryBookCardProps> = ({ userBook, onRe
     switch (status) {
       case BookStatus.Available:
         return 'Available';
-      case BookStatus.OnLoan:
-        return 'On Loan';
+      case BookStatus.BeingShared:
+        return 'Being Shared';
       case BookStatus.Unavailable:
         return 'Unavailable';
       default:
@@ -35,8 +35,8 @@ export const LibraryBookCard: React.FC<LibraryBookCardProps> = ({ userBook, onRe
     switch (status) {
       case BookStatus.Available:
         return [bookCardStyles.statusContainer, bookCardStyles.statusAvailable];
-      case BookStatus.OnLoan:
-        return [bookCardStyles.statusContainer, bookCardStyles.statusOnLoan];
+      case BookStatus.BeingShared:
+        return [bookCardStyles.statusContainer, bookCardStyles.statusBeingShared];
       case BookStatus.Unavailable:
         return [bookCardStyles.statusContainer, bookCardStyles.statusUnavailable];
       default:
@@ -65,7 +65,7 @@ export const LibraryBookCard: React.FC<LibraryBookCardProps> = ({ userBook, onRe
   const handleStatusPress = () => {
     const statusOptions = [
       { label: 'Available', value: BookStatus.Available },
-      { label: 'On Loan', value: BookStatus.OnLoan },
+      { label: 'Being Shared', value: BookStatus.BeingShared },
       { label: 'Unavailable', value: BookStatus.Unavailable },
     ];
 

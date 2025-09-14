@@ -10,6 +10,15 @@ export const API_BASE_URL = __DEV__ ? devServerUri : 'http://192.168.1.72:5155';
 
 export enum BookStatus {
   Available = 1,
-  OnLoan = 2,
+  BeingShared = 2,
   Unavailable = 3
+}
+
+export enum ShareStatus {
+  Requested = 1,
+  Ready = 2,
+  PickedUp = 3,
+  Returned = 4,
+  HomeSafe = 5,
+  Disputed = 6
 }

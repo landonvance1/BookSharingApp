@@ -126,7 +126,7 @@ export const bookCardStyles = StyleSheet.create({
   statusAvailable: {
     backgroundColor: '#8FA68E',
   },
-  statusOnLoan: {
+  statusBeingShared: {
     backgroundColor: '#D4A574',
   },
   statusUnavailable: {
