@@ -1,9 +1,9 @@
 import React from 'react';
-import { BorrowerShare } from '../types';
+import { Share } from '../types';
 import { ShareBookCard } from './ShareBookCard';
 
 interface BorrowCardProps {
-  share: BorrowerShare;
+  share: Share;
 }
 
 export const BorrowCard: React.FC<BorrowCardProps> = ({ share }) => {
