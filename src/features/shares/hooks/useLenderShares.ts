@@ -1,26 +1,26 @@
 import { useState, useEffect, useCallback } from 'react';
-import { BorrowerShare } from '../types';
+import { LenderShare } from '../types';
 import { sharesApi } from '../api/sharesApi';
 import { ShareStatus } from '../../../lib/constants';
 
-interface UseSharesReturn {
-  shares: BorrowerShare[];
+interface UseLenderSharesReturn {
+  lenderShares: LenderShare[];
   loading: boolean;
   error: string | null;
-  refreshShares: () => Promise<void>;
+  refreshLenderShares: () => Promise<void>;
 }
 
-export const useShares = (): UseSharesReturn => {
-  const [shares, setShares] = useState<BorrowerShare[]>([]);
+export const useLenderShares = (): UseLenderSharesReturn => {
+  const [lenderShares, setLenderShares] = useState<LenderShare[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const refreshShares = useCallback(async () => {
+  const refreshLenderShares = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
-      const allShares = await sharesApi.getBorrowerShares();
+      const allShares = await sharesApi.getLenderShares();
 
       // Filter shares with status <= 4 (Requested, Ready, PickedUp, Returned)
       const activeShares = allShares.filter(share => share.status <= ShareStatus.Returned);
@@ -33,24 +33,24 @@ export const useShares = (): UseSharesReturn => {
         return a.userBook.book.title.localeCompare(b.userBook.book.title);
       });
 
-      setShares(sortedShares);
+      setLenderShares(sortedShares);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch shares';
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch lender shares';
       setError(errorMessage);
-      console.error('Error fetching shares:', err);
+      console.error('Error fetching lender shares:', err);
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    refreshShares();
-  }, [refreshShares]);
+    refreshLenderShares();
+  }, [refreshLenderShares]);
 
   return {
-    shares,
+    lenderShares,
     loading,
     error,
-    refreshShares,
+    refreshLenderShares,
   };
 };

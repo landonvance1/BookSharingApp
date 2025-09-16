@@ -10,11 +10,22 @@ export interface UserBookWithOwner {
   user: User;
 }
 
-export interface Share {
+// Base share interface
+export interface BaseShare {
   id: number;
   userBookId: number;
   borrower: string;
   returnDate: string | null;
   status: number;
-  userBook: UserBookWithOwner;
+}
+
+// Share from borrower's perspective (what you've borrowed)
+export interface BorrowerShare extends BaseShare {
+  userBook: UserBookWithOwner; // Includes the owner's info
+}
+
+// Share from lender's perspective (what you've lent out)
+export interface LenderShare extends BaseShare {
+  userBook: UserBookWithOwner; // Your book
+  borrowerUser: User; // The person who borrowed it
 }
