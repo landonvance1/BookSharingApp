@@ -1,25 +1,19 @@
 import React, { useState } from 'react';
 import { Text, View, Image, StyleSheet } from 'react-native';
-import { BorrowerShare, LenderShare } from '../types';
+import { LenderShare } from '../types';
 import { ShareStatus } from '../../../lib/constants';
 import { bookCardStyles } from '../../../components/BookCardStyles';
 import { getFullImageUrl } from '../../../utils/imageUtils';
 
-interface ShareBookCardProps {
-  share: BorrowerShare | LenderShare;
-  showOwner?: boolean;
-  showReturnDate?: boolean;
+interface LendCardProps {
+  share: LenderShare;
 }
 
-export const ShareBookCard: React.FC<ShareBookCardProps> = ({
-  share,
-  showOwner = true,
-  showReturnDate = true
-}) => {
+export const LendCard: React.FC<LendCardProps> = ({ share }) => {
   const [imageError, setImageError] = useState(false);
 
-  const { userBook } = share;
-  const { book, user } = userBook;
+  const { userBook, borrowerUser } = share;
+  const { book } = userBook;
   const hasValidThumbnail = book.thumbnailUrl && book.thumbnailUrl.trim() !== '' && !imageError;
 
   const getStatusText = (status: number) => {
@@ -40,7 +34,6 @@ export const ShareBookCard: React.FC<ShareBookCardProps> = ({
         return 'Unknown';
     }
   };
-
 
   const formatReturnDate = (dateString: string | null) => {
     if (!dateString) return 'No return date set';
@@ -72,19 +65,15 @@ export const ShareBookCard: React.FC<ShareBookCardProps> = ({
           <Text style={bookCardStyles.title}>{book.title}</Text>
 
           <View style={styles.detailsGroup}>
-            {showOwner && (
-              <Text style={styles.detailText}>
-                <Text style={styles.detailLabel}>Owner: </Text>
-                {user.firstName} {user.lastName}
-              </Text>
-            )}
+            <Text style={styles.detailText}>
+              <Text style={styles.detailLabel}>Borrower: </Text>
+              {borrowerUser.firstName} {borrowerUser.lastName}
+            </Text>
 
-            {showReturnDate && (
-              <Text style={styles.detailText}>
-                <Text style={styles.detailLabel}>Return by: </Text>
-                {formatReturnDate(share.returnDate)}
-              </Text>
-            )}
+            <Text style={styles.detailText}>
+              <Text style={styles.detailLabel}>Return by: </Text>
+              {formatReturnDate(share.returnDate)}
+            </Text>
 
             <Text style={styles.detailText}>
               <Text style={styles.detailLabel}>Status: </Text>
