@@ -4,7 +4,7 @@ import { BorrowCard } from './components/BorrowCard';
 import { LendCard } from './components/LendCard';
 import { useShares } from './hooks/useShares';
 import { useLenderShares } from './hooks/useLenderShares';
-import { BorrowerShare, LenderShare } from './types';
+import { Share } from './types';
 
 type TabType = 'borrows' | 'lends';
 
@@ -13,11 +13,11 @@ export default function SharesScreen() {
   const { shares, loading: borrowsLoading, error: borrowsError, refreshShares } = useShares();
   const { lenderShares, loading: lendsLoading, error: lendsError, refreshLenderShares } = useLenderShares();
 
-  const renderBorrowItem = ({ item }: { item: BorrowerShare }) => (
+  const renderBorrowItem = ({ item }: { item: Share }) => (
     <BorrowCard share={item} />
   );
 
-  const renderLendItem = ({ item }: { item: LenderShare }) => (
+  const renderLendItem = ({ item }: { item: Share }) => (
     <LendCard share={item} />
   );
 

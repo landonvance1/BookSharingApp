@@ -1,17 +1,17 @@
 import { useState, useEffect, useCallback } from 'react';
-import { BorrowerShare } from '../types';
+import { Share } from '../types';
 import { sharesApi } from '../api/sharesApi';
 import { ShareStatus } from '../../../lib/constants';
 
 interface UseSharesReturn {
-  shares: BorrowerShare[];
+  shares: Share[];
   loading: boolean;
   error: string | null;
   refreshShares: () => Promise<void>;
 }
 
 export const useShares = (): UseSharesReturn => {
-  const [shares, setShares] = useState<BorrowerShare[]>([]);
+  const [shares, setShares] = useState<Share[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

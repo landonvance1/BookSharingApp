@@ -1,12 +1,12 @@
 import { api } from '../../../lib/api';
-import { BorrowerShare, LenderShare } from '../types';
+import { Share } from '../types';
 
 export const sharesApi = {
-  getBorrowerShares: async (): Promise<BorrowerShare[]> => {
+  getBorrowerShares: async (): Promise<Share[]> => {
     return api.get('/shares/borrower');
   },
 
-  getLenderShares: async (): Promise<LenderShare[]> => {
+  getLenderShares: async (): Promise<Share[]> => {
     return api.get('/shares/lender');
   },
 };

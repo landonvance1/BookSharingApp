@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Text, View, Image, StyleSheet } from 'react-native';
-import { LenderShare } from '../types';
+import { Share } from '../types';
 import { ShareStatus } from '../../../lib/constants';
 import { bookCardStyles } from '../../../components/BookCardStyles';
 import { getFullImageUrl } from '../../../utils/imageUtils';
 
 interface LendCardProps {
-  share: LenderShare;
+  share: Share;
 }
 
 export const LendCard: React.FC<LendCardProps> = ({ share }) => {
