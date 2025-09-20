@@ -1,9 +1,14 @@
 import React, { useState } from 'react';
-import { Text, View, Image, StyleSheet } from 'react-native';
+import { Text, View, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { StackNavigationProp } from '@react-navigation/stack';
 import { Share } from '../types';
 import { ShareStatus } from '../../../lib/constants';
 import { bookCardStyles } from '../../../components/BookCardStyles';
 import { getFullImageUrl } from '../../../utils/imageUtils';
+import { SharesStackParamList } from '../SharesStack';
+
+type ShareCardNavigationProp = StackNavigationProp<SharesStackParamList>;
 
 interface ShareBookCardProps {
   share: Share;
@@ -17,6 +22,7 @@ export const ShareBookCard: React.FC<ShareBookCardProps> = ({
   showReturnDate = true
 }) => {
   const [imageError, setImageError] = useState(false);
+  const navigation = useNavigation<ShareCardNavigationProp>();
 
   const { userBook } = share;
   const { book, user } = userBook;
@@ -49,8 +55,12 @@ export const ShareBookCard: React.FC<ShareBookCardProps> = ({
     return date.toLocaleDateString();
   };
 
+  const handlePress = () => {
+    navigation.navigate('ShareDetails', { share });
+  };
+
   return (
-    <View style={bookCardStyles.container}>
+    <TouchableOpacity style={bookCardStyles.container} onPress={handlePress}>
       <View style={bookCardStyles.cardContent}>
         <View style={bookCardStyles.thumbnail}>
           {hasValidThumbnail ? (
@@ -93,7 +103,7 @@ export const ShareBookCard: React.FC<ShareBookCardProps> = ({
           </View>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
