@@ -4,7 +4,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 
 import { BookSearchPage } from '../features/books/components/BookSearchPage';
 import { LibraryStack } from '../features/library/LibraryStack';
-import SharesScreen from '../features/shares/SharesScreen';
+import { SharesStack } from '../features/shares/SharesStack';
 import CommunitiesScreen from '../features/communities/CommunitiesScreen';
 import SettingsScreen from '../features/settings/SettingsScreen';
 
@@ -46,7 +46,7 @@ export default function TabNavigator() {
       >
         <Tab.Screen name="Search" component={BookSearchPage} />
         <Tab.Screen name="Library" component={LibraryStack} />
-        <Tab.Screen name="Shares" component={SharesScreen} />
+        <Tab.Screen name="Shares" component={SharesStack} />
         <Tab.Screen name="Communities" component={CommunitiesScreen} />
         <Tab.Screen name="Settings" component={SettingsScreen} />
       </Tab.Navigator>
