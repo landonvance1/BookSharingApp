@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   PanResponder,
   Dimensions,
 } from 'react-native';
+import LottieView from 'lottie-react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 import type { RouteProp } from '@react-navigation/native';
@@ -19,6 +20,7 @@ import { getFullImageUrl } from '../../utils/imageUtils';
 import { useAuth } from '../../contexts/AuthContext';
 import { SharesStackParamList } from './SharesStack';
 import ShareStatusTimeline from './components/ShareStatusTimeline';
+import { sharesApi } from './api/sharesApi';
 
 type ShareDetailsNavigationProp = StackNavigationProp<SharesStackParamList, 'ShareDetails'>;
 type ShareDetailsRouteProp = RouteProp<SharesStackParamList, 'ShareDetails'>;
@@ -30,14 +32,18 @@ export default function ShareDetailsScreen() {
   const { user } = useAuth();
   const { share } = route.params;
   const [imageError, setImageError] = useState(false);
+  const [currentShare, setCurrentShare] = useState<Share>(share);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
+  const celebrationRef = useRef<LottieView>(null);
 
-  const { userBook, borrowerUser } = share;
+  const { userBook, borrowerUser } = currentShare;
   const { book, userId: ownerId, user: owner } = userBook;
   const hasValidThumbnail = book.thumbnailUrl && book.thumbnailUrl.trim() !== '' && !imageError;
 
   // Determine if current user is the owner or borrower
   const isOwner = user?.id === ownerId;
-  const isBorrower = user?.id === share.borrower;
+  const isBorrower = user?.id === currentShare.borrower;
 
   // Swipe back gesture
   const screenWidth = Dimensions.get('window').width;
@@ -55,9 +61,34 @@ export default function ShareDetailsScreen() {
     },
   });
 
-  const handleStatusUpdate = (newStatus: ShareStatus) => {
-    // TODO: Implement API call to update status
-    console.log('Update status to:', newStatus);
+  const handleStatusUpdate = async (newStatus: ShareStatus) => {
+    if (isUpdating) return;
+
+    setIsUpdating(true);
+    try {
+      const updatedShare = await sharesApi.updateShareStatus(currentShare.id, newStatus);
+      setCurrentShare(updatedShare);
+
+      // Trigger celebration if status becomes HomeSafe
+      if (newStatus === ShareStatus.HomeSafe) {
+        setShowCelebration(true);
+        celebrationRef.current?.play();
+
+        // Hide celebration after 3 seconds
+        setTimeout(() => {
+          setShowCelebration(false);
+        }, 3000);
+      }
+    } catch (error) {
+      console.error('Failed to update share status:', error);
+      Alert.alert(
+        'Error',
+        'Failed to update share status. Please try again.',
+        [{ text: 'OK' }]
+      );
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   const handleDispute = () => {
@@ -69,9 +100,23 @@ export default function ShareDetailsScreen() {
         {
           text: 'Report Issue',
           style: 'destructive',
-          onPress: () => {
-            // TODO: Implement API call to set disputed status
-            console.log('Set status to disputed');
+          onPress: async () => {
+            if (isUpdating) return;
+
+            setIsUpdating(true);
+            try {
+              const updatedShare = await sharesApi.updateShareStatus(currentShare.id, ShareStatus.Disputed);
+              setCurrentShare(updatedShare);
+            } catch (error) {
+              console.error('Failed to report issue:', error);
+              Alert.alert(
+                'Error',
+                'Failed to report issue. Please try again.',
+                [{ text: 'OK' }]
+              );
+            } finally {
+              setIsUpdating(false);
+            }
           }
         }
       ]
@@ -130,29 +175,48 @@ export default function ShareDetailsScreen() {
             )}
             <Text style={styles.detailText}>
               <Text style={styles.detailLabel}>Return by: </Text>
-              {formatReturnDate(share.returnDate)}
+              {formatReturnDate(currentShare.returnDate)}
             </Text>
           </View>
         </View>
       </View>
 
+      {/* Celebration Animation */}
+      {showCelebration && (
+        <View style={styles.celebrationContainer}>
+          <LottieView
+            ref={celebrationRef}
+            source={require('../../../assets/animations/confetti.json')}
+            style={styles.celebrationAnimation}
+            autoPlay
+            loop={false}
+          />
+        </View>
+      )}
+
       {/* Status Timeline */}
       <ShareStatusTimeline
-        share={share}
+        share={currentShare}
         isOwner={isOwner}
         isBorrower={isBorrower}
         onStatusUpdate={handleStatusUpdate}
       />
 
       {/* Dispute Button */}
-      {share.status !== ShareStatus.Disputed && share.status !== ShareStatus.HomeSafe && (
-        <TouchableOpacity style={styles.disputeButton} onPress={handleDispute}>
-          <Text style={styles.disputeButtonText}>Report Issue</Text>
+      {currentShare.status !== ShareStatus.Disputed && currentShare.status !== ShareStatus.HomeSafe && (
+        <TouchableOpacity
+          style={[styles.disputeButton, isUpdating && styles.buttonDisabled]}
+          onPress={handleDispute}
+          disabled={isUpdating}
+        >
+          <Text style={styles.disputeButtonText}>
+            {isUpdating ? 'Reporting...' : 'Report Issue'}
+          </Text>
         </TouchableOpacity>
       )}
 
       {/* Disputed Status Warning */}
-      {share.status === ShareStatus.Disputed && (
+      {currentShare.status === ShareStatus.Disputed && (
         <View style={styles.disputedWarning}>
           <Icon name="warning" size={20} color="#C4443C" />
           <Text style={styles.disputedText}>
@@ -287,5 +351,35 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#C4443C',
     fontWeight: '500',
+  },
+  buttonDisabled: {
+    opacity: 0.6,
+  },
+  celebrationContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    zIndex: 1000,
+  },
+  celebrationAnimation: {
+    width: '100%',
+    height: '100%',
+  },
+  celebrationText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#1C3A5B',
+    backgroundColor: 'white',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
+    marginTop: 20,
+    textAlign: 'center',
+    overflow: 'hidden',
   },
 });
