@@ -108,7 +108,6 @@ export default function ShareStatusTimeline({
 
   return (
     <View style={styles.timelineContainer}>
-      <Text style={styles.timelineTitle}>Share Progress</Text>
       {statusSteps.map((step, index) => {
         const isCompleted = share.status > step.status;
         const isCurrent = share.status === step.status;
@@ -187,12 +186,6 @@ const styles = StyleSheet.create({
   timelineContainer: {
     padding: 16,
     backgroundColor: '#fff',
-  },
-  timelineTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 16,
-    color: '#1C3A5B',
   },
   timelineStep: {
     marginBottom: 8,

@@ -45,16 +45,17 @@ export default function ShareDetailsScreen() {
   const isOwner = user?.id === ownerId;
   const isBorrower = user?.id === currentShare.borrower;
 
+
   // Swipe back gesture
   const screenWidth = Dimensions.get('window').width;
   const panResponder = PanResponder.create({
-    onMoveShouldSetPanResponder: (evt, gestureState) => {
+    onMoveShouldSetPanResponder: (_, gestureState) => {
       return gestureState.dx > 20 && Math.abs(gestureState.dy) < 50;
     },
-    onPanResponderMove: (evt, gestureState) => {
+    onPanResponderMove: () => {
       // Could add visual feedback here
     },
-    onPanResponderRelease: (evt, gestureState) => {
+    onPanResponderRelease: (_, gestureState) => {
       if (gestureState.dx > screenWidth * 0.3) {
         navigation.goBack();
       }
@@ -138,7 +139,9 @@ export default function ShareDetailsScreen() {
           <Icon name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Share Details</Text>
-        <View style={styles.headerSpacer} />
+        <TouchableOpacity onPress={() => navigation.navigate('ShareChat', { share: currentShare })} style={styles.chatButton}>
+          <Icon name="chatbubble-outline" size={24} color="#007AFF" />
+        </TouchableOpacity>
       </View>
 
       {/* Book Info */}
@@ -195,12 +198,12 @@ export default function ShareDetailsScreen() {
       )}
 
       {/* Status Timeline */}
-      <ShareStatusTimeline
-        share={currentShare}
-        isOwner={isOwner}
-        isBorrower={isBorrower}
-        onStatusUpdate={handleStatusUpdate}
-      />
+        <ShareStatusTimeline
+          share={currentShare}
+          isOwner={isOwner}
+          isBorrower={isBorrower}
+          onStatusUpdate={handleStatusUpdate}
+        />
 
       {/* Dispute Button */}
       {currentShare.status !== ShareStatus.Disputed && currentShare.status !== ShareStatus.HomeSafe && (
@@ -252,8 +255,8 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     textAlign: 'center',
   },
-  headerSpacer: {
-    width: 40,
+  chatButton: {
+    padding: 8,
   },
   bookInfo: {
     flexDirection: 'row',
