@@ -75,7 +75,7 @@ export default function CommunitiesScreen() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#2D5A27" />
+        <ActivityIndicator size="large" color="#4CAF50" />
         <Text style={styles.loadingText}>Loading communities...</Text>
       </View>
     );
@@ -182,6 +182,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   inactiveButton: {
-    backgroundColor: '#8FA68E',
+    backgroundColor: '#4CAF50',
   },
 });

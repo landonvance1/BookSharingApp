@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f9fafb',
   },
   loginButton: {
-    backgroundColor: '#3b82f6',
+    backgroundColor: '#007AFF',
     padding: 16,
     borderRadius: 8,
     alignItems: 'center',
@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
   },
   linkText: {
     fontSize: 16,
-    color: '#3b82f6',
+    color: '#007AFF',
     fontWeight: '600',
   },
 });

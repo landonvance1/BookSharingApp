@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   activeTab: {
-    backgroundColor: '#1C3A5B',
+    backgroundColor: '#007AFF',
   },
   tabText: {
     fontSize: 16,

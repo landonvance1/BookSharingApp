@@ -71,7 +71,7 @@ export const bookCardStyles = StyleSheet.create({
     gap: 8,
   },
   primaryButton: {
-    backgroundColor: '#8FA68E',
+    backgroundColor: '#4CAF50',
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 6,
@@ -80,7 +80,7 @@ export const bookCardStyles = StyleSheet.create({
   secondaryButton: {
     backgroundColor: 'transparent',
     borderWidth: 1,
-    borderColor: '#8FA68E',
+    borderColor: '#4CAF50',
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 6,
@@ -124,7 +124,7 @@ export const bookCardStyles = StyleSheet.create({
     marginBottom: 8,
   },
   statusAvailable: {
-    backgroundColor: '#8FA68E',
+    backgroundColor: '#4CAF50',
   },
   statusBeingShared: {
     backgroundColor: '#D4A574',
@@ -172,7 +172,7 @@ export const bookCardStyles = StyleSheet.create({
     fontWeight: '500',
   },
   removeButton: {
-    backgroundColor: '#d32f2f',
+    backgroundColor: '#C4443C',
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 4,
