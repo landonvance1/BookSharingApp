@@ -96,9 +96,6 @@ export default function ShareStatusTimeline({
           onPress: () => {
             if (onStatusUpdate) {
               onStatusUpdate(nextStatus);
-            } else {
-              // TODO: Implement API call to update status
-              console.log('Update status to:', nextStatus);
             }
           }
         }
@@ -113,20 +110,6 @@ export default function ShareStatusTimeline({
         const isCurrent = share.status === step.status;
         const isNext = share.status === step.status - 1;
         const canProgress = isCurrent && canUserProgressStatus(share.status);
-
-        // Debug logging for current step
-        if (isCurrent) {
-          console.log('Timeline Debug - Current Step:', {
-            stepStatus: step.status,
-            stepLabel: step.label,
-            shareStatus: share.status,
-            isOwner,
-            isBorrower,
-            canUserProgress: canUserProgressStatus(share.status),
-            canProgress,
-            hasActionLabel: !!step.actionLabel
-          });
-        }
 
         return (
           <View key={step.status} style={styles.timelineStep}>

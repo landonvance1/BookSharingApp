@@ -8,12 +8,16 @@ import {
   Alert,
   PanResponder,
   Dimensions,
+  Platform,
+  Animated,
 } from 'react-native';
 import LottieView from 'lottie-react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 import type { RouteProp } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import Toast from 'react-native-toast-message';
 import { Share } from './types';
 import { ShareStatus } from '../../lib/constants';
 import { getFullImageUrl } from '../../utils/imageUtils';
@@ -36,6 +40,11 @@ export default function ShareDetailsScreen() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
   const celebrationRef = useRef<LottieView>(null);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date>(
+    currentShare.returnDate ? new Date(currentShare.returnDate) : new Date()
+  );
+  const datePickerHeight = useRef(new Animated.Value(0)).current;
 
   const { userBook, borrowerUser } = currentShare;
   const { book, userId: ownerId, user: owner } = userBook;
@@ -130,6 +139,72 @@ export default function ShareDetailsScreen() {
     return date.toLocaleDateString();
   };
 
+  const handleDateChange = (_: any, date?: Date) => {
+    if (Platform.OS === 'android') {
+      closeDatePicker();
+    }
+
+    if (date) {
+      setSelectedDate(date);
+      if (Platform.OS === 'android') {
+        // On Android, apply the date immediately when selected
+        handleReturnDateUpdate(date);
+      }
+    }
+  };
+
+  const handleReturnDateUpdate = async (dateToUpdate: Date) => {
+    if (isUpdating) return;
+
+    setIsUpdating(true);
+    try {
+      const updatedShare = await sharesApi.updateReturnDate(currentShare.id, dateToUpdate.toISOString());
+      setCurrentShare(updatedShare);
+      closeDatePicker();
+      Toast.show({
+        type: 'success',
+        text1: '✓ Return date updated',
+        visibilityTime: 2000,
+      });
+    } catch (error) {
+      console.error('Failed to update return date:', error);
+      Alert.alert(
+        'Error',
+        'Failed to update return date. Please try again.',
+        [{ text: 'OK' }]
+      );
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const openDatePicker = () => {
+    setShowDatePicker(true);
+    Animated.timing(datePickerHeight, {
+      toValue: Platform.OS === 'ios' ? 280 : 0,
+      duration: 400,
+      useNativeDriver: false,
+    }).start();
+  };
+
+  const closeDatePicker = () => {
+    Animated.timing(datePickerHeight, {
+      toValue: 0,
+      duration: 400,
+      useNativeDriver: false,
+    }).start(() => {
+      setShowDatePicker(false);
+    });
+  };
+
+  const handleEditReturnDate = () => {
+    if (showDatePicker) {
+      closeDatePicker();
+    } else {
+      openDatePicker();
+    }
+  };
+
 
   return (
     <View style={styles.container} {...panResponder.panHandlers}>
@@ -176,13 +251,63 @@ export default function ShareDetailsScreen() {
                 {borrowerUser.firstName} {borrowerUser.lastName}
               </Text>
             )}
-            <Text style={styles.detailText}>
-              <Text style={styles.detailLabel}>Return by: </Text>
-              {formatReturnDate(currentShare.returnDate)}
-            </Text>
+            <View style={styles.returnDateContainer}>
+              <Text style={styles.detailText}>
+                <Text style={styles.detailLabel}>Return by: </Text>
+                {formatReturnDate(currentShare.returnDate)}
+              </Text>
+              {isOwner && (
+                <TouchableOpacity
+                  onPress={handleEditReturnDate}
+                  disabled={isUpdating}
+                  style={styles.editDateButton}
+                >
+                  <Icon name="calendar-outline" size={18} color="#007AFF" />
+                </TouchableOpacity>
+              )}
+            </View>
           </View>
         </View>
       </View>
+
+      {/* Date Picker */}
+      {showDatePicker && Platform.OS === 'ios' && (
+        <Animated.View style={[styles.datePickerContainer, { height: datePickerHeight }]}>
+          <DateTimePicker
+            value={selectedDate}
+            mode="date"
+            display="spinner"
+            onChange={handleDateChange}
+            minimumDate={new Date()}
+          />
+          <View style={styles.datePickerButtons}>
+            <TouchableOpacity
+              style={styles.datePickerButton}
+              onPress={closeDatePicker}
+            >
+              <Text style={styles.datePickerButtonText}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.datePickerButton, styles.datePickerConfirmButton]}
+              onPress={() => handleReturnDateUpdate(selectedDate)}
+              disabled={isUpdating}
+            >
+              <Text style={[styles.datePickerButtonText, styles.datePickerConfirmText]}>
+                {isUpdating ? 'Updating...' : 'Confirm'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </Animated.View>
+      )}
+      {showDatePicker && Platform.OS === 'android' && (
+        <DateTimePicker
+          value={selectedDate}
+          mode="date"
+          display="default"
+          onChange={handleDateChange}
+          minimumDate={new Date()}
+        />
+      )}
 
       {/* Celebration Animation */}
       {showCelebration && (
@@ -307,6 +432,45 @@ const styles = StyleSheet.create({
   },
   detailLabel: {
     fontWeight: '600',
+  },
+  returnDateContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  editDateButton: {
+    padding: 4,
+  },
+  datePickerContainer: {
+    overflow: 'hidden',
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#e0e0e0',
+  },
+  datePickerButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    padding: 16,
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#e0e0e0',
+  },
+  datePickerButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    backgroundColor: '#f0f0f0',
+  },
+  datePickerConfirmButton: {
+    backgroundColor: '#007AFF',
+  },
+  datePickerButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#000',
+  },
+  datePickerConfirmText: {
+    color: '#fff',
   },
   chatPlaceholder: {
     flex: 1,
