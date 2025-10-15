@@ -3,10 +3,13 @@ import { View, Text, StyleSheet, FlatList, ActivityIndicator, Alert, TouchableOp
 import { communitiesApi } from './api/communitiesApi';
 import { CommunityWithMemberCount } from './types';
 import { useAuth } from '../../contexts/AuthContext';
+import AddCommunityForm from './components/AddCommunityForm';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 export default function CommunitiesScreen() {
   const [communities, setCommunities] = useState<CommunityWithMemberCount[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showAddForm, setShowAddForm] = useState(false);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -32,7 +35,7 @@ export default function CommunitiesScreen() {
 
   const handleLeaveCommunity = async (communityId: number) => {
     if (!user?.id) return;
-    
+
     Alert.alert(
       'Leave Community',
       'Are you sure you want to leave this community?',
@@ -53,6 +56,11 @@ export default function CommunitiesScreen() {
         }
       ]
     );
+  };
+
+  const handleAddSuccess = async () => {
+    setShowAddForm(false);
+    await loadCommunities();
   };
 
   const renderCommunity = ({ item }: { item: CommunityWithMemberCount }) => (
@@ -83,7 +91,25 @@ export default function CommunitiesScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>My Communities</Text>
+      <View style={styles.header}>
+        <View style={styles.headerSpacer} />
+        <Text style={styles.title}>My Communities</Text>
+        <View style={styles.headerButtonContainer}>
+          {!showAddForm && (
+            <TouchableOpacity style={styles.addButton} onPress={() => setShowAddForm(true)}>
+              <Icon name="add" size={24} color="#fff" />
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
+
+      {showAddForm && (
+        <AddCommunityForm
+          onSuccess={handleAddSuccess}
+          onCancel={() => setShowAddForm(false)}
+        />
+      )}
+
       {communities.length === 0 ? (
         <Text style={styles.subtitle}>No communities found</Text>
       ) : (
@@ -111,12 +137,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#F9F7F4',
   },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+    paddingHorizontal: 8,
+  },
+  headerSpacer: {
+    width: 44,
+  },
+  headerButtonContainer: {
+    width: 44,
+    alignItems: 'flex-end',
+  },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
     color: '#1C3A5B',
+    flex: 1,
+    textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,
@@ -183,5 +223,21 @@ const styles = StyleSheet.create({
   },
   inactiveButton: {
     backgroundColor: '#4CAF50',
+  },
+  addButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#007AFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
 });

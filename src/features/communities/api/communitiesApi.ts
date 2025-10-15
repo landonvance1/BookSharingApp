@@ -14,8 +14,8 @@ export const communitiesApi = {
     return api.get(`/communities/${id}`);
   },
   
-  addCommunity: async (community: Omit<Community, 'id'>): Promise<Community> => {
-    return api.post('/communities', community);
+  addCommunity: async (name: string): Promise<Community> => {
+    return api.post(`/communities?name=${encodeURIComponent(name)}`, {});
   },
   
   leaveCommunity: async (communityId: number): Promise<void> => {
