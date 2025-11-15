@@ -20,5 +20,6 @@ export enum ShareStatus {
   PickedUp = 3,
   Returned = 4,
   HomeSafe = 5,
-  Disputed = 6
+  Disputed = 6,
+  Declined = 7
 }
