@@ -103,6 +103,25 @@ export default function ShareStatusTimeline({
     );
   };
 
+  const handleDecline = () => {
+    Alert.alert(
+      'Decline Share Request',
+      'Are you sure you want to decline this share request?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Decline',
+          style: 'destructive',
+          onPress: () => {
+            if (onStatusUpdate) {
+              onStatusUpdate(ShareStatus.Declined);
+            }
+          }
+        }
+      ]
+    );
+  };
+
   return (
     <View style={styles.timelineContainer}>
       {statusSteps.map((step, index) => {
@@ -141,14 +160,26 @@ export default function ShareStatusTimeline({
                   {step.description}
                 </Text>
                 {canProgress && step.actionLabel && (
-                  <TouchableOpacity
-                    style={styles.progressButton}
-                    onPress={handleStatusProgress}
-                  >
-                    <Text style={styles.progressButtonText}>
-                      {step.actionLabel}
-                    </Text>
-                  </TouchableOpacity>
+                  <View style={styles.actionButtonsContainer}>
+                    <TouchableOpacity
+                      style={styles.progressButton}
+                      onPress={handleStatusProgress}
+                    >
+                      <Text style={styles.progressButtonText}>
+                        {step.actionLabel}
+                      </Text>
+                    </TouchableOpacity>
+                    {share.status === ShareStatus.Requested && isOwner && (
+                      <TouchableOpacity
+                        style={styles.declineButton}
+                        onPress={handleDecline}
+                      >
+                        <Text style={styles.declineButtonText}>
+                          Decline Share
+                        </Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
                 )}
               </View>
             </View>
@@ -229,6 +260,11 @@ const styles = StyleSheet.create({
   timelineLineCompleted: {
     backgroundColor: '#4CAF50',
   },
+  actionButtonsContainer: {
+    flexDirection: 'row',
+    gap: 8,
+    flexWrap: 'wrap',
+  },
   progressButton: {
     backgroundColor: '#007AFF',
     paddingHorizontal: 16,
@@ -237,6 +273,18 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   progressButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  declineButton: {
+    backgroundColor: '#FF3B30',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 6,
+    alignSelf: 'flex-start',
+  },
+  declineButtonText: {
     color: '#fff',
     fontSize: 14,
     fontWeight: '600',
