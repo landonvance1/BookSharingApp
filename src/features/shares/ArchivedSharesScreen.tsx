@@ -5,68 +5,60 @@ import type { StackNavigationProp } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons';
 import { BorrowCard } from './components/BorrowCard';
 import { LendCard } from './components/LendCard';
-import { useShares } from './hooks/useShares';
-import { useLenderShares } from './hooks/useLenderShares';
+import { useArchivedShares } from './hooks/useArchivedShares';
+import { useArchivedLenderShares } from './hooks/useArchivedLenderShares';
 import { Share } from './types';
 import { SharesStackParamList } from './SharesStack';
 
-type SharesScreenNavigationProp = StackNavigationProp<SharesStackParamList, 'SharesList'>;
-
 type TabType = 'borrows' | 'lends';
+type ArchivedSharesNavigationProp = StackNavigationProp<SharesStackParamList, 'ArchivedShares'>;
 
-export default function SharesScreen() {
-  const navigation = useNavigation<SharesScreenNavigationProp>();
+export default function ArchivedSharesScreen() {
+  const navigation = useNavigation<ArchivedSharesNavigationProp>();
   const [activeTab, setActiveTab] = useState<TabType>('borrows');
-  const { shares, loading: borrowsLoading, error: borrowsError, refreshShares } = useShares();
-  const { lenderShares, loading: lendsLoading, error: lendsError, refreshLenderShares } = useLenderShares();
-  const scrollViewRef = React.useRef<any>(null);
+  const { archivedShares, loading: borrowsLoading, error: borrowsError, refreshArchivedShares } = useArchivedShares();
+  const { archivedLenderShares, loading: lendsLoading, error: lendsError, refreshArchivedLenderShares } = useArchivedLenderShares();
 
   // Refresh data when screen comes into focus (only refresh active tab)
   useFocusEffect(
     React.useCallback(() => {
-      // Reset scroll position to top to avoid layout issues
-      scrollViewRef.current?.scrollTo({ y: 0, animated: false });
-
       if (activeTab === 'borrows') {
-        refreshShares();
+        refreshArchivedShares();
       } else {
-        refreshLenderShares();
+        refreshArchivedLenderShares();
       }
-    }, [activeTab, refreshShares, refreshLenderShares])
+    }, [activeTab, refreshArchivedShares, refreshArchivedLenderShares])
   );
 
   const renderBorrowItem = ({ item }: { item: Share }) => (
-    <BorrowCard share={item} onArchiveSuccess={refreshShares} />
+    <BorrowCard share={item} showUnarchive onArchiveSuccess={refreshArchivedShares} />
   );
 
   const renderLendItem = ({ item }: { item: Share }) => (
-    <LendCard share={item} onArchiveSuccess={refreshLenderShares} />
+    <LendCard share={item} showUnarchive onArchiveSuccess={refreshArchivedLenderShares} />
   );
 
   const handleRefresh = async () => {
     if (activeTab === 'borrows') {
-      await refreshShares();
+      await refreshArchivedShares();
     } else {
-      await refreshLenderShares();
+      await refreshArchivedLenderShares();
     }
   };
 
   const currentLoading = activeTab === 'borrows' ? borrowsLoading : lendsLoading;
   const currentError = activeTab === 'borrows' ? borrowsError : lendsError;
-  const currentData = activeTab === 'borrows' ? shares : lenderShares;
+  const currentData = activeTab === 'borrows' ? archivedShares : archivedLenderShares;
 
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <View style={styles.headerPlaceholder} />
-        <Text style={styles.headerTitle}>Shares</Text>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('ArchivedShares')}
-          style={styles.archiveButton}
-        >
-          <Ionicons name="archive-outline" size={24} color="#007AFF" />
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
+        <Text style={styles.headerTitle}>Archived Shares</Text>
+        <View style={styles.placeholder} />
       </View>
 
       {/* Tab Navigation */}
@@ -91,7 +83,6 @@ export default function SharesScreen() {
 
       {/* Content */}
       <ScrollView
-        ref={scrollViewRef}
         style={styles.content}
         refreshControl={
           <RefreshControl refreshing={currentLoading} onRefresh={handleRefresh} />
@@ -103,7 +94,7 @@ export default function SharesScreen() {
           )}
           {currentData.length === 0 && !currentLoading && !currentError && (
             <Text style={styles.emptyText}>
-              {activeTab === 'borrows' ? 'No borrowed books found' : 'No lent books found'}
+              {activeTab === 'borrows' ? 'No archived borrows' : 'No archived lent books'}
             </Text>
           )}
           <FlatList
@@ -127,23 +118,24 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingTop: 20,
-    paddingBottom: 12,
+    paddingBottom: 16,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
   },
-  headerPlaceholder: {
-    width: 40,
+  backButton: {
+    padding: 8,
   },
   headerTitle: {
     flex: 1,
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#1C3A5B',
+    fontSize: 18,
+    fontWeight: '600',
     textAlign: 'center',
   },
-  archiveButton: {
-    padding: 8,
+  placeholder: {
+    width: 40,
   },
   tabContainer: {
     flexDirection: 'row',

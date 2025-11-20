@@ -10,7 +10,7 @@ import {
   ActivityIndicator
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { Ionicons } from '@expo/vector-icons';
 import { chatApi } from '../api/chatApi';
 import { signalRService } from '../services/signalRService';
 import { ChatMessage, ConnectionStatus, ChatState } from '../types/chat';
@@ -268,7 +268,7 @@ export default function ShareChat({ share }: ShareChatProps) {
 
     return (
       <View style={styles.warningContainer}>
-        <Icon name="warning" size={16} color="#FF9500" />
+        <Ionicons name="warning" size={16} color="#FF9500" />
         <Text style={styles.warningText}>
           Sending quickly ({recentMessageCount}/30)
         </Text>
@@ -327,7 +327,7 @@ export default function ShareChat({ share }: ShareChatProps) {
             {isSending ? (
               <ActivityIndicator size="small" color="#fff" />
             ) : (
-              <Icon name="send" size={20} color="#fff" />
+              <Ionicons name="send" size={20} color="#fff" />
             )}
           </TouchableOpacity>
         </View>

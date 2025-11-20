@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Text, View, TouchableOpacity, Image, Alert, ActionSheetIOS, Platform } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import { Ionicons } from '@expo/vector-icons';
 import { UserBook } from '../../books/types';
 import { BookStatus } from '../../../lib/constants';
 import { bookCardStyles } from '../../../components/BookCardStyles';
@@ -114,7 +114,7 @@ export const LibraryBookCard: React.FC<LibraryBookCardProps> = ({ userBook, onRe
         style={bookCardStyles.trashIcon}
         onPress={handleRemovePress}
       >
-        <Icon name="close" size={20} color="#C4443C" />
+        <Ionicons name="close" size={20} color="#C4443C" />
       </TouchableOpacity>
       
       <View style={bookCardStyles.cardContent}>

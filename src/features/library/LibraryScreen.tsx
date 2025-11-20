@@ -13,7 +13,7 @@ import { useDebounceValue } from '../../hooks/useDebounceValue';
 import { LibraryBookCard } from './components/LibraryBookCard';
 import { UserBook } from '../books/types';
 import { SearchInput } from '../../components/SearchInput';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { Ionicons } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -108,7 +108,7 @@ export default function LibraryScreen() {
             style={styles.addButton}
             onPress={handleAddBookPress}
           >
-            <Icon name="add" size={24} color="#fff" />
+            <Ionicons name="add" size={24} color="#fff" />
           </TouchableOpacity>
         </View>
       </View>

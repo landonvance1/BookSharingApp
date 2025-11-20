@@ -15,7 +15,7 @@ import LottieView from 'lottie-react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 import type { RouteProp } from '@react-navigation/native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Toast from 'react-native-toast-message';
 import { Share } from './types';
@@ -34,7 +34,7 @@ export default function ShareDetailsScreen() {
   const navigation = useNavigation<ShareDetailsNavigationProp>();
   const route = useRoute<ShareDetailsRouteProp>();
   const { user } = useAuth();
-  const { share } = route.params;
+  const { share, isArchived = false } = route.params;
   const [imageError, setImageError] = useState(false);
   const [currentShare, setCurrentShare] = useState<Share>(share);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -94,6 +94,42 @@ export default function ShareDetailsScreen() {
       Alert.alert(
         'Error',
         'Failed to update share status. Please try again.',
+        [{ text: 'OK' }]
+      );
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleArchive = async () => {
+    if (isUpdating) return;
+
+    setIsUpdating(true);
+    try {
+      if (isArchived) {
+        await sharesApi.unarchiveShare(currentShare.id);
+        Toast.show({
+          type: 'success',
+          text1: '✓ Share unarchived',
+          visibilityTime: 2000,
+        });
+        // Navigate to main Shares screen after unarchiving
+        navigation.navigate('SharesList');
+      } else {
+        await sharesApi.archiveShare(currentShare.id);
+        Toast.show({
+          type: 'success',
+          text1: '✓ Share archived',
+          visibilityTime: 2000,
+        });
+        // Navigate back after archiving
+        navigation.goBack();
+      }
+    } catch (error) {
+      console.error('Failed to archive/unarchive share:', error);
+      Alert.alert(
+        'Error',
+        `Failed to ${isArchived ? 'unarchive' : 'archive'} share. Please try again.`,
         [{ text: 'OK' }]
       );
     } finally {
@@ -211,11 +247,11 @@ export default function ShareDetailsScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Icon name="arrow-back" size={24} color="#000" />
+          <Ionicons name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Share Details</Text>
         <TouchableOpacity onPress={() => navigation.navigate('ShareChat', { share: currentShare })} style={styles.chatButton}>
-          <Icon name="chatbubble-outline" size={24} color="#007AFF" />
+          <Ionicons name="chatbubble-outline" size={24} color="#007AFF" />
         </TouchableOpacity>
       </View>
 
@@ -262,7 +298,7 @@ export default function ShareDetailsScreen() {
                   disabled={isUpdating}
                   style={styles.editDateButton}
                 >
-                  <Icon name="calendar-outline" size={18} color="#007AFF" />
+                  <Ionicons name="calendar-outline" size={18} color="#007AFF" />
                 </TouchableOpacity>
               )}
             </View>
@@ -346,11 +382,37 @@ export default function ShareDetailsScreen() {
       {/* Disputed Status Warning */}
       {currentShare.status === ShareStatus.Disputed && (
         <View style={styles.disputedWarning}>
-          <Icon name="warning" size={20} color="#C4443C" />
+          <Ionicons name="warning" size={20} color="#C4443C" />
           <Text style={styles.disputedText}>
             This share has been marked as disputed
           </Text>
         </View>
+      )}
+
+      {/* Archive/Unarchive Button for Terminal States */}
+      {(isArchived ||
+        currentShare.status === ShareStatus.HomeSafe ||
+        currentShare.status === ShareStatus.Disputed ||
+        currentShare.status === ShareStatus.Declined) && (
+        <TouchableOpacity
+          style={[
+            isArchived ? styles.unarchiveButton : styles.archiveButton,
+            isUpdating && styles.buttonDisabled
+          ]}
+          onPress={handleArchive}
+          disabled={isUpdating}
+        >
+          <Ionicons
+            name={isArchived ? "arrow-undo-outline" : "archive-outline"}
+            size={20}
+            color={isArchived ? "#34C759" : "#007AFF"}
+          />
+          <Text style={isArchived ? styles.unarchiveButtonText : styles.archiveButtonText}>
+            {isUpdating
+              ? (isArchived ? 'Unarchiving...' : 'Archiving...')
+              : (isArchived ? 'Unarchive Share' : 'Archive Share')}
+          </Text>
+        </TouchableOpacity>
       )}
     </View>
   );
@@ -521,6 +583,42 @@ const styles = StyleSheet.create({
   },
   buttonDisabled: {
     opacity: 0.6,
+  },
+  archiveButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F0F8FF',
+    marginHorizontal: 16,
+    marginBottom: 16,
+    paddingVertical: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#007AFF',
+    gap: 8,
+  },
+  archiveButtonText: {
+    color: '#007AFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  unarchiveButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#E8F5E9',
+    marginHorizontal: 16,
+    marginBottom: 16,
+    paddingVertical: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#34C759',
+    gap: 8,
+  },
+  unarchiveButtonText: {
+    color: '#34C759',
+    fontSize: 16,
+    fontWeight: '600',
   },
   celebrationContainer: {
     position: 'absolute',
