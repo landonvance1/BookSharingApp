@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { Ionicons } from '@expo/vector-icons';
 import { Share } from '../types';
 import { ShareStatus } from '../../../lib/constants';
 
@@ -139,7 +139,7 @@ export default function ShareStatusTimeline({
                 isCurrent && styles.timelineIconCurrent
               ]}>
                 {isCompleted ? (
-                  <Icon name="checkmark" size={16} color="#fff" />
+                  <Ionicons name="checkmark" size={16} color="#fff" />
                 ) : (
                   <Text style={[
                     styles.timelineIconText,

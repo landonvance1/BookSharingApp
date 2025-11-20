@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, TextInput, TextInputProps, View } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { Ionicons } from '@expo/vector-icons';
 
 interface SearchInputProps extends Omit<TextInputProps, 'returnKeyType' | 'returnKeyLabel'> {
   placeholder?: string;
@@ -23,7 +23,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
 
   return (
     <View style={[styles.container, style]}>
-      <Icon 
+      <Ionicons 
         name="search" 
         size={20} 
         color="#666" 

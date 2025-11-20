@@ -1,6 +1,6 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { Ionicons } from '@expo/vector-icons';
 
 import { BookSearchPage } from '../features/books/components/BookSearchPage';
 import { LibraryStack } from '../features/library/LibraryStack';
@@ -15,7 +15,7 @@ export default function TabNavigator() {
     <Tab.Navigator
         screenOptions={({ route }) => ({
           tabBarIcon: ({ focused, color, size }) => {
-            let iconName: string;
+            let iconName: any;
 
             switch (route.name) {
               case 'Search':
@@ -37,7 +37,7 @@ export default function TabNavigator() {
                 iconName = 'circle';
             }
 
-            return <Icon name={iconName} size={size} color={color} />;
+            return <Ionicons name={iconName} size={size} color={color} />;
           },
           tabBarActiveTintColor: '#007AFF',
           tabBarInactiveTintColor: 'gray',

@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Share } from '../types';
 import { sharesApi } from '../api/sharesApi';
-import { ShareStatus } from '../../../lib/constants';
 
 interface UseLenderSharesReturn {
   lenderShares: Share[];
@@ -22,11 +21,8 @@ export const useLenderShares = (): UseLenderSharesReturn => {
     try {
       const allShares = await sharesApi.getLenderShares();
 
-      // Filter shares with status <= 4 (Requested, Ready, PickedUp, Returned)
-      const activeShares = allShares.filter(share => share.status <= ShareStatus.Returned);
-
       // Sort by status (ascending) and then by book title
-      const sortedShares = activeShares.sort((a, b) => {
+      const sortedShares = allShares.sort((a, b) => {
         if (a.status !== b.status) {
           return a.status - b.status;
         }

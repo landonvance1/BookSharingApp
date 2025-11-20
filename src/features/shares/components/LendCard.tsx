@@ -1,22 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Text, View, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
+import { Swipeable } from 'react-native-gesture-handler';
+import { Ionicons } from '@expo/vector-icons';
+import Toast from 'react-native-toast-message';
 import { Share } from '../types';
 import { ShareStatus } from '../../../lib/constants';
 import { bookCardStyles } from '../../../components/BookCardStyles';
 import { getFullImageUrl } from '../../../utils/imageUtils';
 import { SharesStackParamList } from '../SharesStack';
+import { sharesApi } from '../api/sharesApi';
 
 type LendCardNavigationProp = StackNavigationProp<SharesStackParamList>;
 
 interface LendCardProps {
   share: Share;
+  showUnarchive?: boolean;
+  onArchiveSuccess?: () => void;
 }
 
-export const LendCard: React.FC<LendCardProps> = ({ share }) => {
+export const LendCard: React.FC<LendCardProps> = ({ share, showUnarchive = false, onArchiveSuccess }) => {
   const [imageError, setImageError] = useState(false);
+  const [isArchiving, setIsArchiving] = useState(false);
   const navigation = useNavigation<LendCardNavigationProp>();
+  const swipeableRef = useRef<Swipeable>(null);
 
   const { userBook, borrowerUser } = share;
   const { book } = userBook;
@@ -36,6 +44,8 @@ export const LendCard: React.FC<LendCardProps> = ({ share }) => {
         return 'Home Safe';
       case ShareStatus.Disputed:
         return 'Disputed';
+      case ShareStatus.Declined:
+        return 'Declined';
       default:
         return 'Unknown';
     }
@@ -49,10 +59,91 @@ export const LendCard: React.FC<LendCardProps> = ({ share }) => {
   };
 
   const handlePress = () => {
-    navigation.navigate('ShareDetails', { share });
+    navigation.navigate('ShareDetails', { share, isArchived: showUnarchive });
   };
 
-  return (
+  const isTerminalState =
+    share.status === ShareStatus.HomeSafe ||
+    share.status === ShareStatus.Disputed ||
+    share.status === ShareStatus.Declined;
+
+  const handleArchive = async () => {
+    if (isArchiving) return;
+
+    setIsArchiving(true);
+    try {
+      await sharesApi.archiveShare(share.id);
+      swipeableRef.current?.close();
+      Toast.show({
+        type: 'success',
+        text1: '✓ Share archived',
+        visibilityTime: 2000,
+      });
+      if (onArchiveSuccess) {
+        onArchiveSuccess();
+      }
+    } catch (error) {
+      console.error('Failed to archive share:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Failed to archive',
+        visibilityTime: 2000,
+      });
+    } finally {
+      setIsArchiving(false);
+    }
+  };
+
+  const handleUnarchive = async () => {
+    if (isArchiving) return;
+
+    setIsArchiving(true);
+    try {
+      await sharesApi.unarchiveShare(share.id);
+      swipeableRef.current?.close();
+      Toast.show({
+        type: 'success',
+        text1: '✓ Share unarchived',
+        visibilityTime: 2000,
+      });
+      if (onArchiveSuccess) {
+        onArchiveSuccess();
+      }
+    } catch (error) {
+      console.error('Failed to unarchive share:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Failed to unarchive',
+        visibilityTime: 2000,
+      });
+    } finally {
+      setIsArchiving(false);
+    }
+  };
+
+  const renderRightActions = () => {
+    if (showUnarchive) {
+      return (
+        <TouchableOpacity style={styles.unarchiveAction} onPress={handleUnarchive}>
+          <Ionicons name="arrow-undo-outline" size={24} color="#fff" />
+          <Text style={styles.actionText}>Unarchive</Text>
+        </TouchableOpacity>
+      );
+    }
+
+    if (isTerminalState) {
+      return (
+        <TouchableOpacity style={styles.archiveAction} onPress={handleArchive}>
+          <Ionicons name="archive-outline" size={24} color="#fff" />
+          <Text style={styles.actionText}>Archive</Text>
+        </TouchableOpacity>
+      );
+    }
+
+    return null;
+  };
+
+  const cardContent = (
     <TouchableOpacity style={bookCardStyles.container} onPress={handlePress}>
       <View style={bookCardStyles.cardContent}>
         <View style={bookCardStyles.thumbnail}>
@@ -94,6 +185,21 @@ export const LendCard: React.FC<LendCardProps> = ({ share }) => {
       </View>
     </TouchableOpacity>
   );
+
+  // Only enable swipe if it's a terminal state or showing unarchive
+  if (isTerminalState || showUnarchive) {
+    return (
+      <Swipeable
+        ref={swipeableRef}
+        renderRightActions={renderRightActions}
+        overshootRight={false}
+      >
+        {cardContent}
+      </Swipeable>
+    );
+  }
+
+  return cardContent;
 };
 
 const styles = StyleSheet.create({
@@ -108,5 +214,29 @@ const styles = StyleSheet.create({
   },
   detailLabel: {
     fontWeight: '600',
+  },
+  archiveAction: {
+    backgroundColor: '#007AFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 100,
+    marginVertical: 8,
+    marginRight: 8,
+    borderRadius: 8,
+  },
+  unarchiveAction: {
+    backgroundColor: '#34C759',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 100,
+    marginVertical: 8,
+    marginRight: 8,
+    borderRadius: 8,
+  },
+  actionText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+    marginTop: 4,
   },
 });

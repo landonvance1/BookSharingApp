@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Text, View, TouchableOpacity, Image } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { Ionicons } from '@expo/vector-icons';
 import Toast from 'react-native-toast-message';
 import { SearchBookResult } from '../types';
 import { bookCardStyles } from '../../../components/BookCardStyles';
@@ -74,7 +74,7 @@ export const SearchBookCard: React.FC<SearchBookCardProps> = ({ book, onBorrowPr
           <Text style={bookCardStyles.author}>{book.author}</Text>
           <Text style={bookCardStyles.title}>{book.title}</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
-            <Icon name="people" size={16} color="#6B6B6B" style={{ marginRight: 6 }} />
+            <Ionicons name="people" size={16} color="#6B6B6B" style={{ marginRight: 6 }} />
             <Text style={bookCardStyles.community}>{book.communityName}</Text>
           </View>
           

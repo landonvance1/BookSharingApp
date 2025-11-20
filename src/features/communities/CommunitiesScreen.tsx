@@ -4,7 +4,7 @@ import { communitiesApi } from './api/communitiesApi';
 import { CommunityWithMemberCount } from './types';
 import { useAuth } from '../../contexts/AuthContext';
 import AddCommunityForm from './components/AddCommunityForm';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function CommunitiesScreen() {
   const [communities, setCommunities] = useState<CommunityWithMemberCount[]>([]);
@@ -97,7 +97,7 @@ export default function CommunitiesScreen() {
         <View style={styles.headerButtonContainer}>
           {!showAddForm && (
             <TouchableOpacity style={styles.addButton} onPress={() => setShowAddForm(true)}>
-              <Icon name="add" size={24} color="#fff" />
+              <Ionicons name="add" size={24} color="#fff" />
             </TouchableOpacity>
           )}
         </View>
