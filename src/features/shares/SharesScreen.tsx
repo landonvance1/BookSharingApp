@@ -9,6 +9,8 @@ import { useShares } from './hooks/useShares';
 import { useLenderShares } from './hooks/useLenderShares';
 import { Share } from './types';
 import { SharesStackParamList } from './SharesStack';
+import { useShareListNotificationCount } from '../notifications/hooks/useNotifications';
+import { NotificationBadge } from '../notifications/components/NotificationBadge';
 
 type SharesScreenNavigationProp = StackNavigationProp<SharesStackParamList, 'SharesList'>;
 
@@ -20,6 +22,10 @@ export default function SharesScreen() {
   const { shares, loading: borrowsLoading, error: borrowsError, refreshShares } = useShares();
   const { lenderShares, loading: lendsLoading, error: lendsError, refreshLenderShares } = useLenderShares();
   const scrollViewRef = React.useRef<any>(null);
+
+  // Get notification counts for each tab
+  const borrowsNotificationCount = useShareListNotificationCount(shares);
+  const lendsNotificationCount = useShareListNotificationCount(lenderShares);
 
   // Refresh data when screen comes into focus (only refresh active tab)
   useFocusEffect(
@@ -75,17 +81,27 @@ export default function SharesScreen() {
           style={[styles.tab, activeTab === 'borrows' && styles.activeTab]}
           onPress={() => setActiveTab('borrows')}
         >
-          <Text style={[styles.tabText, activeTab === 'borrows' && styles.activeTabText]}>
-            My Borrows
-          </Text>
+          <View style={styles.tabContent}>
+            <Text style={[styles.tabText, activeTab === 'borrows' && styles.activeTabText]}>
+              My Borrows
+            </Text>
+          </View>
+          <View style={styles.tabBadgeContainer}>
+            <NotificationBadge count={borrowsNotificationCount} size="small" />
+          </View>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.tab, activeTab === 'lends' && styles.activeTab]}
           onPress={() => setActiveTab('lends')}
         >
-          <Text style={[styles.tabText, activeTab === 'lends' && styles.activeTabText]}>
-            My Lent Books
-          </Text>
+          <View style={styles.tabContent}>
+            <Text style={[styles.tabText, activeTab === 'lends' && styles.activeTabText]}>
+              My Lent Books
+            </Text>
+          </View>
+          <View style={styles.tabBadgeContainer}>
+            <NotificationBadge count={lendsNotificationCount} size="small" />
+          </View>
         </TouchableOpacity>
       </View>
 
@@ -159,6 +175,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderRadius: 6,
     alignItems: 'center',
+  },
+  tabContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  tabBadgeContainer: {
+    position: 'absolute',
+    top: 6,
+    right: 6,
   },
   activeTab: {
     backgroundColor: '#007AFF',

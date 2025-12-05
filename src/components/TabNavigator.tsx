@@ -7,10 +7,13 @@ import { LibraryStack } from '../features/library/LibraryStack';
 import { SharesStack } from '../features/shares/SharesStack';
 import CommunitiesScreen from '../features/communities/CommunitiesScreen';
 import SettingsScreen from '../features/settings/SettingsScreen';
+import { useShareUnreadCount } from '../features/notifications/hooks/useNotifications';
 
 const Tab = createBottomTabNavigator();
 
 export default function TabNavigator() {
+  const unreadCount = useShareUnreadCount();
+
   return (
     <Tab.Navigator
         screenOptions={({ route }) => ({
@@ -46,7 +49,13 @@ export default function TabNavigator() {
       >
         <Tab.Screen name="Search" component={BookSearchPage} />
         <Tab.Screen name="Library" component={LibraryStack} />
-        <Tab.Screen name="Shares" component={SharesStack} />
+        <Tab.Screen
+          name="Shares"
+          component={SharesStack}
+          options={{
+            tabBarBadge: unreadCount > 0 ? unreadCount : undefined,
+          }}
+        />
         <Tab.Screen name="Communities" component={CommunitiesScreen} />
         <Tab.Screen name="Settings" component={SettingsScreen} />
       </Tab.Navigator>

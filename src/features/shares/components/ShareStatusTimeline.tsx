@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Share } from '../types';
 import { ShareStatus } from '../../../lib/constants';
@@ -48,14 +48,56 @@ interface ShareStatusTimelineProps {
   isOwner: boolean;
   isBorrower: boolean;
   onStatusUpdate?: (newStatus: ShareStatus) => void;
+  hasStatusNotification?: boolean;
 }
 
 export default function ShareStatusTimeline({
   share,
   isOwner,
   isBorrower,
-  onStatusUpdate
+  onStatusUpdate,
+  hasStatusNotification = false
 }: ShareStatusTimelineProps) {
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const [isAnimating, setIsAnimating] = useState(false);
+  const animationRef = useRef<Animated.CompositeAnimation | null>(null);
+  const prevNotificationRef = useRef(false);
+
+  useEffect(() => {
+    // Only start animation when notification changes from false → true
+    // Animation continues indefinitely once started
+    const notificationJustAppeared = hasStatusNotification && !prevNotificationRef.current;
+    prevNotificationRef.current = hasStatusNotification;
+
+    if (notificationJustAppeared && !isAnimating) {
+      setIsAnimating(true);
+
+      // Create infinite pulsing animation
+      animationRef.current = Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnim, {
+            toValue: 1.15,
+            duration: 600,
+            useNativeDriver: true,
+          }),
+          Animated.timing(pulseAnim, {
+            toValue: 1,
+            duration: 600,
+            useNativeDriver: true,
+          }),
+        ])
+      );
+
+      animationRef.current.start();
+    }
+  }, [hasStatusNotification]);
+
+  // Cleanup: stop animation only when component unmounts
+  useEffect(() => {
+    return () => {
+      animationRef.current?.stop();
+    };
+  }, []);
   const getNextValidStatus = (currentStatus: ShareStatus): ShareStatus | null => {
     const currentIndex = statusSteps.findIndex(step => step.status === currentStatus);
     if (currentIndex === -1 || currentIndex === statusSteps.length - 1) {
@@ -130,13 +172,17 @@ export default function ShareStatusTimeline({
         const isNext = share.status === step.status - 1;
         const canProgress = isCurrent && canUserProgressStatus(share.status);
 
+        const shouldPulse = isCurrent && isAnimating;
+
         return (
           <View key={step.status} style={styles.timelineStep}>
             <View style={styles.timelineRow}>
-              <View style={[
+              <Animated.View style={[
                 styles.timelineIcon,
                 isCompleted && styles.timelineIconCompleted,
-                isCurrent && styles.timelineIconCurrent
+                isCurrent && styles.timelineIconCurrent,
+                shouldPulse && styles.timelineIconNotification,
+                shouldPulse && { transform: [{ scale: pulseAnim }] }
               ]}>
                 {isCompleted ? (
                   <Ionicons name="checkmark" size={16} color="#fff" />
@@ -148,7 +194,7 @@ export default function ShareStatusTimeline({
                     {index + 1}
                   </Text>
                 )}
-              </View>
+              </Animated.View>
               <View style={styles.timelineContent}>
                 <Text style={[
                   styles.timelineLabel,
@@ -222,6 +268,13 @@ const styles = StyleSheet.create({
   },
   timelineIconCurrent: {
     backgroundColor: '#007AFF',
+  },
+  timelineIconNotification: {
+    shadowColor: '#007AFF',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 10,
+    elevation: 10,
   },
   timelineIconText: {
     fontSize: 14,
