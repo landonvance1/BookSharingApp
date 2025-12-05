@@ -11,6 +11,8 @@ import { bookCardStyles } from '../../../components/BookCardStyles';
 import { getFullImageUrl } from '../../../utils/imageUtils';
 import { SharesStackParamList } from '../SharesStack';
 import { sharesApi } from '../api/sharesApi';
+import { NotificationBadge } from '../../notifications/components/NotificationBadge';
+import { useShareNotifications } from '../../notifications/hooks/useNotifications';
 
 type LendCardNavigationProp = StackNavigationProp<SharesStackParamList>;
 
@@ -25,6 +27,7 @@ export const LendCard: React.FC<LendCardProps> = ({ share, showUnarchive = false
   const [isArchiving, setIsArchiving] = useState(false);
   const navigation = useNavigation<LendCardNavigationProp>();
   const swipeableRef = useRef<Swipeable>(null);
+  const { count: notificationCount } = useShareNotifications(share.id);
 
   const { userBook, borrowerUser } = share;
   const { book } = userBook;
@@ -182,6 +185,12 @@ export const LendCard: React.FC<LendCardProps> = ({ share, showUnarchive = false
             </Text>
           </View>
         </View>
+
+        {notificationCount > 0 && (
+          <View style={styles.notificationBadgeContainer}>
+            <NotificationBadge count={notificationCount} size="medium" />
+          </View>
+        )}
       </View>
     </TouchableOpacity>
   );
@@ -214,6 +223,11 @@ const styles = StyleSheet.create({
   },
   detailLabel: {
     fontWeight: '600',
+  },
+  notificationBadgeContainer: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
   },
   archiveAction: {
     backgroundColor: '#007AFF',

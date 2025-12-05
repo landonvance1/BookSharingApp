@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -25,6 +25,10 @@ import { useAuth } from '../../contexts/AuthContext';
 import { SharesStackParamList } from './SharesStack';
 import ShareStatusTimeline from './components/ShareStatusTimeline';
 import { sharesApi } from './api/sharesApi';
+import {
+  useShareNotifications,
+  useMarkShareNotificationsRead,
+} from '../notifications/hooks/useNotifications';
 
 type ShareDetailsNavigationProp = StackNavigationProp<SharesStackParamList, 'ShareDetails'>;
 type ShareDetailsRouteProp = RouteProp<SharesStackParamList, 'ShareDetails'>;
@@ -46,6 +50,10 @@ export default function ShareDetailsScreen() {
   );
   const datePickerHeight = useRef(new Animated.Value(0)).current;
 
+  // Notification handling
+  const { statusUpdated, unreadMessagesCount } = useShareNotifications(currentShare.id);
+  const markNotificationsRead = useMarkShareNotificationsRead(currentShare.id);
+
   const { userBook, borrowerUser } = currentShare;
   const { book, userId: ownerId, user: owner } = userBook;
   const hasValidThumbnail = book.thumbnailUrl && book.thumbnailUrl.trim() !== '' && !imageError;
@@ -53,6 +61,21 @@ export default function ShareDetailsScreen() {
   // Determine if current user is the owner or borrower
   const isOwner = user?.id === ownerId;
   const isBorrower = user?.id === currentShare.borrower;
+
+  // Mark share notifications as read after a delay (gives user time to see the animation)
+  useEffect(() => {
+    if (statusUpdated) {
+      const timer = setTimeout(() => {
+        markNotificationsRead.mutate(undefined, {
+          onError: (error) => {
+            console.error('Failed to mark notifications as read:', error);
+          },
+        });
+      }, 500);
+
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
 
   // Swipe back gesture
@@ -252,6 +275,13 @@ export default function ShareDetailsScreen() {
         <Text style={styles.headerTitle}>Share Details</Text>
         <TouchableOpacity onPress={() => navigation.navigate('ShareChat', { share: currentShare })} style={styles.chatButton}>
           <Ionicons name="chatbubble-outline" size={24} color="#007AFF" />
+          {unreadMessagesCount > 0 && (
+            <View style={styles.chatBadge}>
+              <Text style={styles.chatBadgeText}>
+                {unreadMessagesCount > 9 ? '9+' : unreadMessagesCount}
+              </Text>
+            </View>
+          )}
         </TouchableOpacity>
       </View>
 
@@ -364,6 +394,7 @@ export default function ShareDetailsScreen() {
           isOwner={isOwner}
           isBorrower={isBorrower}
           onStatusUpdate={handleStatusUpdate}
+          hasStatusNotification={statusUpdated}
         />
 
       {/* Dispute Button */}
@@ -444,6 +475,24 @@ const styles = StyleSheet.create({
   },
   chatButton: {
     padding: 8,
+    position: 'relative',
+  },
+  chatBadge: {
+    position: 'absolute',
+    top: 4,
+    right: 4,
+    backgroundColor: '#FF3B30',
+    borderRadius: 8,
+    minWidth: 16,
+    height: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 4,
+  },
+  chatBadgeText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: '600',
   },
   bookInfo: {
     flexDirection: 'row',
@@ -552,7 +601,7 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
   disputeButton: {
-    backgroundColor: '#C4443C',
+    backgroundColor: '#FF3B30',
     marginHorizontal: 16,
     marginBottom: 16,
     paddingVertical: 12,

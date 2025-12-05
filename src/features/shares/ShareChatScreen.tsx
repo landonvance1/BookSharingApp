@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,7 @@ import type { RouteProp } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { SharesStackParamList } from './SharesStack';
 import ShareChat from './components/ShareChat';
+import { useMarkChatNotificationsRead } from '../notifications/hooks/useNotifications';
 
 type ShareChatNavigationProp = StackNavigationProp<SharesStackParamList, 'ShareChat'>;
 type ShareChatRouteProp = RouteProp<SharesStackParamList, 'ShareChat'>;
@@ -21,9 +22,20 @@ export default function ShareChatScreen() {
   const navigation = useNavigation<ShareChatNavigationProp>();
   const route = useRoute<ShareChatRouteProp>();
   const { share } = route.params;
+  const markChatNotificationsRead = useMarkChatNotificationsRead(share.id);
 
   const { userBook } = share;
   const { book } = userBook;
+
+  // Mark chat notifications as read when screen mounts
+  useEffect(() => {
+    markChatNotificationsRead.mutate(undefined, {
+      onError: (error) => {
+        console.error('Failed to mark chat notifications as read:', error);
+        // Silently fail - don't show error to user for this background operation
+      },
+    });
+  }, []);
 
   return (
     <KeyboardAvoidingView

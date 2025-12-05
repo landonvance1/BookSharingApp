@@ -53,7 +53,25 @@ export const api = {
     }
     return response.json();
   },
-  
+
+  patch: async (endpoint: string, data?: any) => {
+    const authHeaders = await getAuthHeaders();
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        ...authHeaders,
+      },
+      ...(data && { body: JSON.stringify(data) }),
+    });
+    if (!response.ok) {
+      throw new Error(`API Error: ${response.status}`);
+    }
+    // PATCH requests may return no content (204)
+    const text = await response.text();
+    return text ? JSON.parse(text) : null;
+  },
+
   delete: async (endpoint: string, data?: any) => {
     const authHeaders = await getAuthHeaders();
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {

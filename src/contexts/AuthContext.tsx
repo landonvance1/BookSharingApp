@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, LoginRequest, RegisterRequest } from '../types/auth';
 import { authService } from '../services/authService';
+import { queryClient } from '../lib/queryClient';
 
 interface AuthContextType {
   user: User | null;
@@ -66,6 +67,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       await authService.clearTokens();
       setUser(null);
+      // Clear React Query cache to prevent data leakage between users
+      queryClient.clear();
     } catch (error) {
       console.error('Logout failed:', error);
     }
