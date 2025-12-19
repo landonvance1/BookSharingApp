@@ -13,6 +13,6 @@ export interface Notification {
 export const NotificationTypes = {
   // Share-related notifications
   STATUS_STATUS_CHANGED: 'ShareStatusChanged',
-  DUE_DATE_CHANGED: 'DueDateChanged',
+  DUE_DATE_CHANGED: 'ShareDueDateChanged',
   SHARE_MESSAGE_RECEIVED: 'ShareMessageReceived',
 } as const;

@@ -51,7 +51,7 @@ export default function ShareDetailsScreen() {
   const datePickerHeight = useRef(new Animated.Value(0)).current;
 
   // Notification handling
-  const { statusUpdated, unreadMessagesCount } = useShareNotifications(currentShare.id);
+  const { statusUpdated, unreadMessagesCount, dueDateUpdated } = useShareNotifications(currentShare.id);
   const markNotificationsRead = useMarkShareNotificationsRead(currentShare.id);
 
   const { userBook, borrowerUser } = currentShare;
@@ -317,11 +317,27 @@ export default function ShareDetailsScreen() {
                 {borrowerUser.firstName} {borrowerUser.lastName}
               </Text>
             )}
-            <View style={styles.returnDateContainer}>
+            <View
+              style={[
+                styles.returnDateContainer,
+                dueDateUpdated && styles.returnDateContainerHighlighted
+              ]}
+              accessibilityLabel={
+                dueDateUpdated
+                  ? `Return date updated: ${formatReturnDate(currentShare.returnDate)}`
+                  : `Return by: ${formatReturnDate(currentShare.returnDate)}`
+              }
+              accessibilityHint={dueDateUpdated ? "The lender has updated the return date" : undefined}
+            >
               <Text style={styles.detailText}>
                 <Text style={styles.detailLabel}>Return by: </Text>
                 {formatReturnDate(currentShare.returnDate)}
               </Text>
+              {dueDateUpdated && (
+                <View style={styles.returnDateUpdateBadge}>
+                  <Text style={styles.returnDateUpdateBadgeText}>Updated</Text>
+                </View>
+              )}
               {isOwner && (
                 <TouchableOpacity
                   onPress={handleEditReturnDate}
@@ -548,6 +564,27 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    marginVertical: 4,
+    borderRadius: 8,
+    borderLeftWidth: 0,
+  },
+  returnDateContainerHighlighted: {
+    backgroundColor: '#E3F2FD',
+    borderLeftWidth: 4,
+    borderLeftColor: '#2196F3',
+  },
+  returnDateUpdateBadge: {
+    backgroundColor: '#2196F3',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  returnDateUpdateBadgeText: {
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: '600',
   },
   editDateButton: {
     padding: 4,
