@@ -54,6 +54,16 @@ export default function ShareDetailsScreen() {
   const { statusUpdated, unreadMessagesCount, dueDateUpdated } = useShareNotifications(currentShare.id);
   const markNotificationsRead = useMarkShareNotificationsRead(currentShare.id);
 
+  // Track whether to show return date highlight (persists until user navigates away)
+  const [showReturnDateHighlight, setShowReturnDateHighlight] = useState(false);
+
+  // Initialize highlight state based on notification
+  useEffect(() => {
+    if (dueDateUpdated) {
+      setShowReturnDateHighlight(true);
+    }
+  }, [dueDateUpdated]);
+
   const { userBook, borrowerUser } = currentShare;
   const { book, userId: ownerId, user: owner } = userBook;
   const hasValidThumbnail = book.thumbnailUrl && book.thumbnailUrl.trim() !== '' && !imageError;
@@ -64,7 +74,7 @@ export default function ShareDetailsScreen() {
 
   // Mark share notifications as read after a delay (gives user time to see the animation)
   useEffect(() => {
-    if (statusUpdated) {
+    if (statusUpdated || dueDateUpdated) {
       const timer = setTimeout(() => {
         markNotificationsRead.mutate(undefined, {
           onError: (error) => {
@@ -320,20 +330,20 @@ export default function ShareDetailsScreen() {
             <View
               style={[
                 styles.returnDateContainer,
-                dueDateUpdated && styles.returnDateContainerHighlighted
+                showReturnDateHighlight && styles.returnDateContainerHighlighted
               ]}
               accessibilityLabel={
-                dueDateUpdated
+                showReturnDateHighlight
                   ? `Return date updated: ${formatReturnDate(currentShare.returnDate)}`
                   : `Return by: ${formatReturnDate(currentShare.returnDate)}`
               }
-              accessibilityHint={dueDateUpdated ? "The lender has updated the return date" : undefined}
+              accessibilityHint={showReturnDateHighlight ? "The lender has updated the return date" : undefined}
             >
               <Text style={styles.detailText}>
                 <Text style={styles.detailLabel}>Return by: </Text>
                 {formatReturnDate(currentShare.returnDate)}
               </Text>
-              {dueDateUpdated && (
+              {showReturnDateHighlight && (
                 <View style={styles.returnDateUpdateBadge}>
                   <Text style={styles.returnDateUpdateBadgeText}>Updated</Text>
                 </View>
