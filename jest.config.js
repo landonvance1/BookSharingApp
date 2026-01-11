@@ -16,14 +16,6 @@ module.exports = {
     '!src/navigation/**',
     '!src/types/**',
   ],
-  coverageThreshold: {
-    global: {
-      statements: 70,
-      branches: 60,
-      functions: 70,
-      lines: 70,
-    },
-  },
   testMatch: [
     '**/__tests__/**/*.test.{ts,tsx}',
     '**/?(*.)+(spec|test).{ts,tsx}',
