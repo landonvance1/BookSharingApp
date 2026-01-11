@@ -30,12 +30,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const storedUser = await authService.getUser();
       const token = await authService.getToken();
-      
+
       if (storedUser && token) {
         setUser(storedUser);
       }
     } catch (error) {
-      console.error('Failed to load stored auth:', error);
+      // Silently fail - user will remain logged out
     } finally {
       setIsLoading(false);
     }
@@ -47,7 +47,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       await authService.storeTokens(authResponse);
       setUser(authResponse.user);
     } catch (error) {
-      console.error('Login failed:', error);
       throw error;
     }
   };
@@ -58,7 +57,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       await authService.storeTokens(authResponse);
       setUser(authResponse.user);
     } catch (error) {
-      console.error('Registration failed:', error);
       throw error;
     }
   };
@@ -70,7 +68,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Clear React Query cache to prevent data leakage between users
       queryClient.clear();
     } catch (error) {
-      console.error('Logout failed:', error);
+      // Silently fail - user state is cleared regardless
     }
   };
 
