@@ -184,7 +184,7 @@ export default function ShareDetailsScreen() {
 
             setIsUpdating(true);
             try {
-              const updatedShare = await sharesApi.updateShareStatus(currentShare.id, ShareStatus.Disputed);
+              const updatedShare = await sharesApi.disputeShare(currentShare.id);
               setCurrentShare(updatedShare);
             } catch (error) {
               console.error('Failed to report issue:', error);
@@ -424,7 +424,7 @@ export default function ShareDetailsScreen() {
         />
 
       {/* Dispute Button */}
-      {currentShare.status !== ShareStatus.Disputed && currentShare.status !== ShareStatus.HomeSafe && (
+      {!currentShare.isDisputed && currentShare.status !== ShareStatus.HomeSafe && currentShare.status !== ShareStatus.Declined && (
         <TouchableOpacity
           style={[styles.disputeButton, isUpdating && styles.buttonDisabled]}
           onPress={handleDispute}
@@ -437,7 +437,7 @@ export default function ShareDetailsScreen() {
       )}
 
       {/* Disputed Status Warning */}
-      {currentShare.status === ShareStatus.Disputed && (
+      {currentShare.isDisputed && (
         <View style={styles.disputedWarning}>
           <Ionicons name="warning" size={20} color="#C4443C" />
           <Text style={styles.disputedText}>
@@ -449,7 +449,7 @@ export default function ShareDetailsScreen() {
       {/* Archive/Unarchive Button for Terminal States */}
       {(isArchived ||
         currentShare.status === ShareStatus.HomeSafe ||
-        currentShare.status === ShareStatus.Disputed ||
+        currentShare.isDisputed ||
         currentShare.status === ShareStatus.Declined) && (
         <TouchableOpacity
           style={[

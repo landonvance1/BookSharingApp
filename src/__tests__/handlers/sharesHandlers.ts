@@ -9,6 +9,8 @@ const mockShare = {
   borrower: 'user-2',
   returnDate: '2026-02-01T00:00:00Z',
   status: ShareStatus.Requested,
+  isDisputed: false,
+  disputedBy: null,
   userBook: {
     id: 1,
     userId: 'user-1',
@@ -86,5 +88,15 @@ export const sharesHandlers = [
   // Unarchive share
   http.post(`${API_BASE_URL}/shares/:shareId/unarchive`, () => {
     return HttpResponse.json({});
+  }),
+
+  // Dispute share
+  http.post(`${API_BASE_URL}/shares/:shareId/dispute`, ({ params }) => {
+    return HttpResponse.json({
+      ...mockShare,
+      id: Number(params.shareId),
+      isDisputed: true,
+      disputedBy: 'user-2',
+    });
   }),
 ];

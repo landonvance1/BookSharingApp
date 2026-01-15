@@ -33,7 +33,10 @@ export const LendCard: React.FC<LendCardProps> = ({ share, showUnarchive = false
   const { book } = userBook;
   const hasValidThumbnail = book.thumbnailUrl && book.thumbnailUrl.trim() !== '' && !imageError;
 
-  const getStatusText = (status: number) => {
+  const getStatusText = (status: number, isDisputed: boolean) => {
+    if (isDisputed) {
+      return 'Disputed';
+    }
     switch (status) {
       case ShareStatus.Requested:
         return 'Requested';
@@ -45,8 +48,6 @@ export const LendCard: React.FC<LendCardProps> = ({ share, showUnarchive = false
         return 'Returned';
       case ShareStatus.HomeSafe:
         return 'Home Safe';
-      case ShareStatus.Disputed:
-        return 'Disputed';
       case ShareStatus.Declined:
         return 'Declined';
       default:
@@ -67,7 +68,7 @@ export const LendCard: React.FC<LendCardProps> = ({ share, showUnarchive = false
 
   const isTerminalState =
     share.status === ShareStatus.HomeSafe ||
-    share.status === ShareStatus.Disputed ||
+    share.isDisputed ||
     share.status === ShareStatus.Declined;
 
   const handleArchive = async () => {
@@ -181,7 +182,7 @@ export const LendCard: React.FC<LendCardProps> = ({ share, showUnarchive = false
 
             <Text style={styles.detailText}>
               <Text style={styles.detailLabel}>Status: </Text>
-              {getStatusText(share.status)}
+              {getStatusText(share.status, share.isDisputed)}
             </Text>
           </View>
         </View>
