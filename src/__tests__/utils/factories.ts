@@ -43,6 +43,8 @@ export const createMockShare = (overrides?: Partial<Share>): Share => {
     borrower: borrower.id,
     returnDate: '2026-02-01T00:00:00Z',
     status: ShareStatus.Requested,
+    isDisputed: false,
+    disputedBy: null,
     userBook: {
       id: userBookIdCounter,
       userId: lender.id,

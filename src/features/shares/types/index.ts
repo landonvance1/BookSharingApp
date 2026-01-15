@@ -16,6 +16,8 @@ export interface Share {
   borrower: string;
   returnDate: string | null;
   status: number;
+  isDisputed: boolean;
+  disputedBy: string | null;
   userBook: UserBookWithOwner;
   borrowerUser: User;
 }

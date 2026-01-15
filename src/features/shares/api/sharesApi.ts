@@ -44,4 +44,8 @@ export const sharesApi = {
   unarchiveShare: async (shareId: number): Promise<void> => {
     return api.post(`/shares/${shareId}/unarchive`, {});
   },
+
+  disputeShare: async (shareId: number): Promise<Share> => {
+    return api.post(`/shares/${shareId}/dispute`, {});
+  },
 };

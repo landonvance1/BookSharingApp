@@ -91,4 +91,17 @@ describe('sharesApi', () => {
       await expect(sharesApi.unarchiveShare(shareId)).resolves.not.toThrow();
     });
   });
+
+  describe('disputeShare', () => {
+    it('should dispute share successfully', async () => {
+      const shareId = 1;
+
+      const updatedShare = await sharesApi.disputeShare(shareId);
+
+      expect(updatedShare).toBeDefined();
+      expect(updatedShare.id).toBe(shareId);
+      expect(updatedShare.isDisputed).toBe(true);
+      expect(updatedShare.disputedBy).toBeDefined();
+    });
+  });
 });
