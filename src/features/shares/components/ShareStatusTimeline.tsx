@@ -4,14 +4,16 @@ import { Ionicons } from '@expo/vector-icons';
 import { Share } from '../types';
 import { ShareStatus } from '../../../lib/constants';
 
-interface StatusStep {
-  status: ShareStatus;
+export interface StatusStep {
+  status: ShareStatus | 'disputed';
   label: string;
   description: string;
   actionLabel?: string;
+  isTerminal?: boolean;
+  terminalType?: 'success' | 'declined' | 'disputed';
 }
 
-const statusSteps: StatusStep[] = [
+const happyPathSteps: StatusStep[] = [
   {
     status: ShareStatus.Requested,
     label: 'Requested',
@@ -39,9 +41,45 @@ const statusSteps: StatusStep[] = [
   {
     status: ShareStatus.HomeSafe,
     label: 'Home Safe',
-    description: 'Book is safely returned to owner'
+    description: 'Book is safely returned to owner',
+    isTerminal: true,
+    terminalType: 'success'
   }
 ];
+
+const declinedStep: StatusStep = {
+  status: ShareStatus.Declined,
+  label: 'Declined',
+  description: 'Lender declined this request',
+  isTerminal: true,
+  terminalType: 'declined'
+};
+
+const disputedStep: StatusStep = {
+  status: 'disputed',
+  label: 'Disputed',
+  description: 'Share was disputed',
+  isTerminal: true,
+  terminalType: 'disputed'
+};
+
+export function getTimelineSteps(share: Share): StatusStep[] {
+  // Declined: Show Requested → Declined
+  if (share.status === ShareStatus.Declined) {
+    return [happyPathSteps[0], declinedStep];
+  }
+
+  // Disputed: Show steps up to current status → Disputed
+  if (share.isDisputed) {
+    const stepsBeforeDispute = happyPathSteps.filter(step =>
+      typeof step.status === 'number' && step.status <= share.status
+    );
+    return [...stepsBeforeDispute, disputedStep];
+  }
+
+  // HomeSafe or active shares: Show full happy path
+  return happyPathSteps;
+}
 
 interface ShareStatusTimelineProps {
   share: Share;
@@ -98,12 +136,15 @@ export default function ShareStatusTimeline({
       animationRef.current?.stop();
     };
   }, []);
+  const timelineSteps = getTimelineSteps(share);
+
   const getNextValidStatus = (currentStatus: ShareStatus): ShareStatus | null => {
-    const currentIndex = statusSteps.findIndex(step => step.status === currentStatus);
-    if (currentIndex === -1 || currentIndex === statusSteps.length - 1) {
+    const currentIndex = happyPathSteps.findIndex(step => step.status === currentStatus);
+    if (currentIndex === -1 || currentIndex === happyPathSteps.length - 1) {
       return null;
     }
-    return statusSteps[currentIndex + 1].status;
+    const nextStep = happyPathSteps[currentIndex + 1];
+    return typeof nextStep.status === 'number' ? nextStep.status : null;
   };
 
   const canUserProgressStatus = (currentStatus: ShareStatus): boolean => {
@@ -127,7 +168,7 @@ export default function ShareStatusTimeline({
       return;
     }
 
-    const currentStep = statusSteps.find(step => step.status === share.status);
+    const currentStep = happyPathSteps.find(step => step.status === share.status);
     Alert.alert(
       'Update Status',
       `${currentStep?.actionLabel}?`,
@@ -164,41 +205,97 @@ export default function ShareStatusTimeline({
     );
   };
 
+  // Helper to determine step state
+  const getStepState = (step: StatusStep, index: number) => {
+    const isTerminalStep = step.isTerminal && (step.terminalType === 'declined' || step.terminalType === 'disputed');
+    const isLastStep = index === timelineSteps.length - 1;
+
+    // For terminal declined/disputed states, the terminal step itself is "current"
+    if (isTerminalStep && isLastStep) {
+      return { isCompleted: false, isCurrent: true, isTerminal: true, terminalType: step.terminalType };
+    }
+
+    // For steps before the terminal, they are completed
+    if (isTerminalStep) {
+      return { isCompleted: true, isCurrent: false, isTerminal: false, terminalType: undefined };
+    }
+
+    // Normal flow for active shares and HomeSafe
+    const stepStatus = typeof step.status === 'number' ? step.status : -1;
+    const isCompleted = share.status > stepStatus;
+    const isCurrent = share.status === stepStatus;
+
+    return { isCompleted, isCurrent, isTerminal: step.isTerminal || false, terminalType: step.terminalType };
+  };
+
+  // Helper to get line color based on the next step
+  const getLineStyle = (nextStep: StatusStep | undefined, currentStepCompleted: boolean) => {
+    if (!nextStep) return styles.timelineLine;
+
+    if (nextStep.terminalType === 'declined') {
+      return [styles.timelineLine, styles.timelineLineDeclined];
+    }
+    if (nextStep.terminalType === 'disputed') {
+      return [styles.timelineLine, styles.timelineLineDisputed];
+    }
+    if (currentStepCompleted) {
+      return [styles.timelineLine, styles.timelineLineCompleted];
+    }
+    return styles.timelineLine;
+  };
+
+  // Render icon based on step state
+  const renderIcon = (_step: StatusStep, index: number, stepState: ReturnType<typeof getStepState>) => {
+    const { isCompleted, isCurrent, terminalType } = stepState;
+
+    if (terminalType === 'declined') {
+      return <Ionicons name="close" size={16} color="#fff" />;
+    }
+    if (terminalType === 'disputed') {
+      return <Ionicons name="warning" size={16} color="#fff" />;
+    }
+    if (isCompleted) {
+      return <Ionicons name="checkmark" size={16} color="#fff" />;
+    }
+    return (
+      <Text style={[
+        styles.timelineIconText,
+        isCurrent && styles.timelineIconTextCurrent
+      ]}>
+        {index + 1}
+      </Text>
+    );
+  };
+
   return (
     <View style={styles.timelineContainer}>
-      {statusSteps.map((step, index) => {
-        const isCompleted = share.status > step.status;
-        const isCurrent = share.status === step.status;
-        const isNext = share.status === step.status - 1;
-        const canProgress = isCurrent && canUserProgressStatus(share.status);
-
-        const shouldPulse = isCurrent && isAnimating;
+      {timelineSteps.map((step, index) => {
+        const stepState = getStepState(step, index);
+        const { isCompleted, isCurrent, terminalType } = stepState;
+        const canProgress = isCurrent && !terminalType && !share.isDisputed && canUserProgressStatus(share.status);
+        const shouldPulse = isCurrent && isAnimating && !terminalType;
+        const nextStep = timelineSteps[index + 1];
 
         return (
-          <View key={step.status} style={styles.timelineStep}>
+          <View key={String(step.status)} style={styles.timelineStep}>
             <View style={styles.timelineRow}>
               <Animated.View style={[
                 styles.timelineIcon,
                 isCompleted && styles.timelineIconCompleted,
-                isCurrent && styles.timelineIconCurrent,
+                isCurrent && !terminalType && styles.timelineIconCurrent,
+                terminalType === 'declined' && styles.timelineIconDeclined,
+                terminalType === 'disputed' && styles.timelineIconDisputed,
                 shouldPulse && styles.timelineIconNotification,
                 shouldPulse && { transform: [{ scale: pulseAnim }] }
               ]}>
-                {isCompleted ? (
-                  <Ionicons name="checkmark" size={16} color="#fff" />
-                ) : (
-                  <Text style={[
-                    styles.timelineIconText,
-                    isCurrent && styles.timelineIconTextCurrent
-                  ]}>
-                    {index + 1}
-                  </Text>
-                )}
+                {renderIcon(step, index, stepState)}
               </Animated.View>
               <View style={styles.timelineContent}>
                 <Text style={[
                   styles.timelineLabel,
-                  isCurrent && styles.timelineLabelCurrent
+                  isCurrent && !terminalType && styles.timelineLabelCurrent,
+                  terminalType === 'declined' && styles.timelineLabelDeclined,
+                  terminalType === 'disputed' && styles.timelineLabelDisputed
                 ]}>
                   {step.label}
                 </Text>
@@ -229,11 +326,8 @@ export default function ShareStatusTimeline({
                 )}
               </View>
             </View>
-            {index < statusSteps.length - 1 && (
-              <View style={[
-                styles.timelineLine,
-                isCompleted && styles.timelineLineCompleted
-              ]} />
+            {index < timelineSteps.length - 1 && (
+              <View style={getLineStyle(nextStep, isCompleted)} />
             )}
           </View>
         );
@@ -269,6 +363,12 @@ const styles = StyleSheet.create({
   timelineIconCurrent: {
     backgroundColor: '#007AFF',
   },
+  timelineIconDeclined: {
+    backgroundColor: '#FF3B30',
+  },
+  timelineIconDisputed: {
+    backgroundColor: '#FF9500',
+  },
   timelineIconNotification: {
     shadowColor: '#007AFF',
     shadowOffset: { width: 0, height: 0 },
@@ -297,6 +397,12 @@ const styles = StyleSheet.create({
   timelineLabelCurrent: {
     color: '#007AFF',
   },
+  timelineLabelDeclined: {
+    color: '#FF3B30',
+  },
+  timelineLabelDisputed: {
+    color: '#FF9500',
+  },
   timelineDescription: {
     fontSize: 14,
     color: '#6B6B6B',
@@ -312,6 +418,12 @@ const styles = StyleSheet.create({
   },
   timelineLineCompleted: {
     backgroundColor: '#4CAF50',
+  },
+  timelineLineDeclined: {
+    backgroundColor: '#FF3B30',
+  },
+  timelineLineDisputed: {
+    backgroundColor: '#FF9500',
   },
   actionButtonsContainer: {
     flexDirection: 'row',
