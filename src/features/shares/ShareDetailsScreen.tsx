@@ -436,41 +436,47 @@ export default function ShareDetailsScreen() {
         </TouchableOpacity>
       )}
 
-      {/* Disputed Status Warning */}
-      {currentShare.isDisputed && (
-        <View style={styles.disputedWarning}>
-          <Ionicons name="warning" size={20} color="#C4443C" />
-          <Text style={styles.disputedText}>
-            This share has been marked as disputed
-          </Text>
-        </View>
-      )}
+      {/* Spacer to push bottom content down */}
+      <View style={styles.spacer} />
 
-      {/* Archive/Unarchive Button for Terminal States */}
-      {(isArchived ||
-        currentShare.status === ShareStatus.HomeSafe ||
-        currentShare.isDisputed ||
-        currentShare.status === ShareStatus.Declined) && (
-        <TouchableOpacity
-          style={[
-            isArchived ? styles.unarchiveButton : styles.archiveButton,
-            isUpdating && styles.buttonDisabled
-          ]}
-          onPress={handleArchive}
-          disabled={isUpdating}
-        >
-          <Ionicons
-            name={isArchived ? "arrow-undo-outline" : "archive-outline"}
-            size={20}
-            color={isArchived ? "#34C759" : "#007AFF"}
-          />
-          <Text style={isArchived ? styles.unarchiveButtonText : styles.archiveButtonText}>
-            {isUpdating
-              ? (isArchived ? 'Unarchiving...' : 'Archiving...')
-              : (isArchived ? 'Unarchive Share' : 'Archive Share')}
-          </Text>
-        </TouchableOpacity>
-      )}
+      {/* Bottom Section - Disputed Warning and Archive Button */}
+      <View style={styles.bottomSection}>
+        {/* Disputed Status Warning */}
+        {currentShare.isDisputed && (
+          <View style={styles.disputedWarning}>
+            <Ionicons name="warning" size={20} color="#C4443C" />
+            <Text style={styles.disputedText}>
+              This share has been marked as disputed
+            </Text>
+          </View>
+        )}
+
+        {/* Archive/Unarchive Button for Terminal States */}
+        {(isArchived ||
+          currentShare.status === ShareStatus.HomeSafe ||
+          currentShare.isDisputed ||
+          currentShare.status === ShareStatus.Declined) && (
+          <TouchableOpacity
+            style={[
+              isArchived ? styles.unarchiveButton : styles.archiveButton,
+              isUpdating && styles.buttonDisabled
+            ]}
+            onPress={handleArchive}
+            disabled={isUpdating}
+          >
+            <Ionicons
+              name={isArchived ? "arrow-undo-outline" : "archive-outline"}
+              size={20}
+              color={isArchived ? "#34C759" : "#007AFF"}
+            />
+            <Text style={isArchived ? styles.unarchiveButtonText : styles.archiveButtonText}>
+              {isUpdating
+                ? (isArchived ? 'Unarchiving...' : 'Archiving...')
+                : (isArchived ? 'Unarchive Share' : 'Archive Share')}
+            </Text>
+          </TouchableOpacity>
+        )}
+      </View>
     </View>
   );
 }
@@ -742,5 +748,11 @@ const styles = StyleSheet.create({
     marginTop: 20,
     textAlign: 'center',
     overflow: 'hidden',
+  },
+  spacer: {
+    flex: 1,
+  },
+  bottomSection: {
+    paddingBottom: 16,
   },
 });
